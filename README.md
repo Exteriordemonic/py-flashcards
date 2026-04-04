@@ -45,7 +45,18 @@ We will create an users app to manage Custom User from begging
       - `python manage.py migrate`
 
 7.✅ U can start app
-    `python manage.py runserver`
+
+    - via `python manage.py runserver`
 
 8.✅ Now its time to create a plan how the models will look a like
-    
+
+    - You can find an entity-relationship diagram of the models in [models.mermaid](models.mermaid).
+
+9.✅ Add new app to settings.py
+   - add "flashcards" to INSTALLED_APPS
+
+10. ✅ Create models
+    - Flashcard
+    - Deck
+    - Flashcard user state
+    - Review
