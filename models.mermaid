@@ -1,52 +1,60 @@
 erDiagram
-    USER ||--o{ REVIEW: creates
-    FLASHCARD ||--o{ REVIEW: has
+    USER ||--o{ FLASHCARD : "created_by (nullable)"
+    USER ||--o{ REVIEW : "reviews"
+    USER ||--o{ FLASHCARD_USER_STATE : "tracks"
+    USER ||--o{ DECK : "owns"
+    USER }o--o{ DECK : "members"
 
-    USER ||--o{ FLASHCARD_USER_STATE: owns
-    FLASHCARD ||--o{ FLASHCARD_USER_STATE: tracked
+    FLASHCARD ||--o{ REVIEW : "reviewed_in"
+    FLASHCARD ||--o{ FLASHCARD_USER_STATE : "state_for"
+    FLASHCARD }o--o{ DECK : "in_decks"
 
-    DECK ||--o{ FLASHCARD: contains
+    DECK ||--o{ REVIEW : "review_context (nullable)"
 
     USER {
-        string id
-        string name
+        int id PK
+        string username
         string email
     }
 
     DECK {
-        string id
+        int id PK
         string name
+        int owner_id FK
     }
 
     FLASHCARD {
-        string id
+        int id PK
         string question
         string answer_a
         string answer_b
         string answer_c
         string answer_d
         string correct_answer
-        string deck_id
-        date created_at
+        datetime created_at
+        datetime updated_at
+        int created_by_id FK nullable
     }
 
-    REVIEW { 
-        string id
-        string flashcard_id
-        string user_id
+    REVIEW {
+        int id PK
+        int flashcard_id FK
+        int user_id FK
+        int deck_id FK nullable
         int quality
-        date reviewed_at 
+        datetime reviewed_at
     }
 
     FLASHCARD_USER_STATE {
-        string id
-        string flashcard_id
-        string user_id
-
-        int interval
+        int id PK
+        int flashcard_id FK
+        int user_id FK
         float ease_factor
-        int repetitions
-
         date next_review_at
-        date last_reviewed_at
+        datetime last_reviewed_at nullable
     }
+
+%% Review.quality: IntegerChoices — 1 Hard, 2 Normal, 3 Easy, 4 Very Easy, 5 Perfect
+%% UniqueConstraint FLASHCARD_USER_STATE (flashcard_id, user_id) name unique_flashcard_user_state
+%% UniqueConstraint DECK (name, owner_id) name unique_deck_user_name
+%% Deck.save ensures owner is in members M2M

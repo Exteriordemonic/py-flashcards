@@ -55,7 +55,7 @@ We will create an users app to manage Custom User from begging
 9.✅ Add new app to settings.py
    - add "flashcards" to INSTALLED_APPS
 
-10. Create models
+10. ✅ Create models
     - Flashcard
     - Deck
     - Flashcard user state
