@@ -10,4 +10,8 @@
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>
+    {% if object %}
+        <a href="{% url 'flashcards:flashcard-detail' pk=object.pk %}">Cancel</a>
+    {% endif %}
+
 {% endblock %}
