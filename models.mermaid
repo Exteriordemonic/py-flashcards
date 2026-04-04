@@ -1,0 +1,52 @@
+erDiagram
+    USER ||--o{ REVIEW: creates
+    FLASHCARD ||--o{ REVIEW: has
+
+    USER ||--o{ FLASHCARD_USER_STATE: owns
+    FLASHCARD ||--o{ FLASHCARD_USER_STATE: tracked
+
+    DECK ||--o{ FLASHCARD: contains
+
+    USER {
+        string id
+        string name
+        string email
+    }
+
+    DECK {
+        string id
+        string name
+    }
+
+    FLASHCARD {
+        string id
+        string question
+        string answer_a
+        string answer_b
+        string answer_c
+        string answer_d
+        string correct_answer
+        string deck_id
+        date created_at
+    }
+
+    REVIEW { 
+        string id
+        string flashcard_id
+        string user_id
+        int quality
+        date reviewed_at 
+    }
+
+    FLASHCARD_USER_STATE {
+        string id
+        string flashcard_id
+        string user_id
+
+        int interval
+        float ease_factor
+        int repetitions
+
+        date next_review_at
+        date last_reviewed_at
+    }
