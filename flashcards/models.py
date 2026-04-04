@@ -20,7 +20,9 @@ class Flashcard(models.Model):
     correct_answer = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deck = models.ManyToManyField(to="Deck", related_name="flashcards")
+    deck = models.ManyToManyField(
+        to="Deck", related_name="flashcards", null=True, blank=True
+    )
     created_by = models.ForeignKey(
         to=User,
         on_delete=models.SET_NULL,
@@ -83,6 +85,7 @@ class Review(models.Model):
         to="Deck",
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="reviews",
     )
     quality = models.IntegerField(choices=Quality.choices)
