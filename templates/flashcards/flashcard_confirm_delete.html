@@ -5,5 +5,10 @@
 {% endblock %}
 
 {% block content %}
-   TBD
+    <p>Are you sure you want to delete the flashcard "{{ object.question }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+        <a href="{% url 'flashcards:flashcard-detail' pk=object.pk %}">Cancel</a>
+    </form>
 {% endblock %}

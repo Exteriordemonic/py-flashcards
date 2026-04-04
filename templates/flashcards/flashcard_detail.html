@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 
 {% block header %}
-    <h1>Flashcard</h1>
+    <h1>Flashcard</h1> 
+    <a href="{% url "flashcards:flashcard-list" %}">Back</a>
+
 {% endblock %}
 
 {% block content %}
         Q: {{ object.question }}
         <br>
         A: {{ object.correct_answer }}
+
+        <br>
+        <a href="{% url "flashcards:flashcard-update" pk=object.id %}">Update</a>
+        <a href="{% url "flashcards:flashcard-delete" pk=object.id %}">Delete</a>
 {% endblock %}

@@ -14,6 +14,8 @@ class FlashcardDetailView(generic.DetailView):
 
 class FlashcardUpdateView(generic.UpdateView):
     model = Flashcard
+    fields = "__all__"
+    success_url = reverse_lazy("flashcards:flashcard-list")
 
 
 class FlashcardCreateView(generic.CreateView):
@@ -24,3 +26,4 @@ class FlashcardCreateView(generic.CreateView):
 
 class FlashcardDeleteView(generic.DeleteView):
     model = Flashcard
+    success_url = reverse_lazy("flashcards:flashcard-list")
