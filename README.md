@@ -48,7 +48,7 @@ We will create an users app to manage Custom User from begging
 
     - via `python manage.py runserver`
 
-8.✅ Now its time to create a plan how the models will look a like
+8.✅ Now its time to create a plan how the models will look a  like
 
     - You can find an entity-relationship diagram of the models in [models.mermaid](models.mermaid).
 
@@ -60,3 +60,10 @@ We will create an users app to manage Custom User from begging
     - Deck
     - Flashcard user state
     - Review
+
+11. Create generic view/routes for flashcards
+    - Create
+    - Detail 
+    - Update
+    - Delete 
+    - List
