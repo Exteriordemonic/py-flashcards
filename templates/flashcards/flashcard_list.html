@@ -21,6 +21,7 @@
             <th>Deck</th>
           </tr>
         </thead>
+        <!-- body -->
         <tbody>
           {% for flashcard in object_list %}
           <tr>
@@ -30,7 +31,7 @@
                 {% for deck in flashcard.deck.all %}
                   <a href="{% url 'flashcards:deck-detail' pk=deck.id %}" class="btn btn-ghost btn-xs">{{ deck.name }}</a>
                 {% empty %}
-                  Brak
+                  -
                 {% endfor %}
               </td>
     

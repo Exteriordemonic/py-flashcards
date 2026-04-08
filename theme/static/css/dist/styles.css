@@ -1997,6 +1997,49 @@
   .flex-grow {
     flex-grow: 1;
   }
+  @layer daisyui.l1.l2.l3 {
+    .link {
+      cursor: pointer;
+      text-decoration-line: underline;
+    }
+    .link:focus {
+      --tw-outline-style: none;
+      outline-style: none;
+    }
+    @media (forced-colors: active) {
+      .link:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+      }
+    }
+    .link:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  }
+  @layer daisyui.l1.l2.l3 {
+    .link {
+      cursor: pointer;
+      text-decoration-line: underline;
+    }
+    .link:focus {
+      --tw-outline-style: none;
+      outline-style: none;
+    }
+    @media (forced-colors: active) {
+      .link:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+      }
+    }
+    .link:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  }
+  .list-disc {
+    list-style-type: disc;
+  }
   .flex-col {
     flex-direction: column;
   }
@@ -2014,6 +2057,11 @@
   }
   .gap-6 {
     gap: calc(var(--spacing) * 6);
+  }
+  :where(.space-y-2 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
   }
   .overflow-x-auto {
     overflow-x: auto;
@@ -2066,6 +2114,9 @@
   .py-6 {
     padding-block: calc(var(--spacing) * 6);
   }
+  .pl-6 {
+    padding-left: calc(var(--spacing) * 6);
+  }
   .text-left {
     text-align: left;
   }
@@ -2103,12 +2154,43 @@
   .text-base-content {
     color: var(--color-base-content);
   }
+  .text-base-content\/60 {
+    color: var(--color-base-content);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    .text-base-content\/60 {
+      color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+    }
+  }
   .text-base-content\/80 {
     color: var(--color-base-content);
   }
   @supports (color: color-mix(in lab, red, red)) {
     .text-base-content\/80 {
       color: color-mix(in oklab, var(--color-base-content) 80%, transparent);
+    }
+  }
+  .italic {
+    font-style: italic;
+  }
+  @layer daisyui.l1.l2 {
+    .link-hover {
+      text-decoration-line: none;
+    }
+    @media (hover: hover) {
+      .link-hover:hover {
+        text-decoration-line: underline;
+      }
+    }
+  }
+  @layer daisyui.l1.l2 {
+    .link-hover {
+      text-decoration-line: none;
+    }
+    @media (hover: hover) {
+      .link-hover:hover {
+        text-decoration-line: underline;
+      }
     }
   }
   .shadow-md {
@@ -2914,6 +2996,11 @@
     background-position-x: -115%;
   }
 }
+@property --tw-space-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -2999,6 +3086,7 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
+      --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;

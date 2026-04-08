@@ -126,3 +126,19 @@ class FlashcardAndDeckViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Should contains the deck name
         self.assertContains(response, self.deck.name)
+
+    def test_deck_detail_view_that_is_not_user(self):
+        self.client.login(username="view_user2", password="secret123")
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "add")
+
+        self.deck.member.add(self.user2)
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        self.assertContains(response, "remove")
