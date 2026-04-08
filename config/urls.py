@@ -24,4 +24,8 @@ urlpatterns = [
         "flashcards/",
         include(("flashcards.urls", "flashcards"), namespace="flashcards"),
     ),
+    path(
+        "",
+        include(("users.urls", "users"), namespace="users"),
+    ),
 ]
