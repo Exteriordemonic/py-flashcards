@@ -1,7 +1,7 @@
 from django.urls import reverse_lazy
 from django.views import generic
 
-from flashcards.models import Flashcard
+from flashcards.models import Deck, Flashcard
 
 
 class FlashcardListView(generic.ListView):
@@ -27,3 +27,8 @@ class FlashcardCreateView(generic.CreateView):
 class FlashcardDeleteView(generic.DeleteView):
     model = Flashcard
     success_url = reverse_lazy("flashcards:flashcard-list")
+
+
+class DeckListView(generic.ListView):
+    model = Deck
+    success_url = reverse_lazy("flashcards:deck-list")

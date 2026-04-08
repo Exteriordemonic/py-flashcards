@@ -6,11 +6,12 @@ from flashcards.views import (
     FlashcardDetailView,
     FlashcardUpdateView,
     FlashcardDeleteView,
+    DeckListView,
 )
 
 
 urlpatterns = [
-    path("", FlashcardListView.as_view(), name="flashcard-list"),
+    # Flashcards
     path("", FlashcardListView.as_view(), name="flashcard-list"),
     path("create/", FlashcardCreateView.as_view(), name="flashcard-create"),
     path("<int:pk>/", FlashcardDetailView.as_view(), name="flashcard-detail"),
@@ -24,4 +25,6 @@ urlpatterns = [
         FlashcardDeleteView.as_view(),
         name="flashcard-delete",
     ),
+    # Decks
+    path("decks", DeckListView.as_view(), name="deck-list"),
 ]
