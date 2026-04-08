@@ -42,6 +42,7 @@ class FlashcardForm(forms.ModelForm):
             "answer_c",
             "answer_d",
             "correct_answer",
+            "deck",
         ]
 
 
