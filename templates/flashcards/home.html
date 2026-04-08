@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block content %}
+<section class="w-full px-4">
+  <div class="container my-4">
+    <div class="jumbotron">
+      <h1 class="display-4">Welcome to Flashcards!</h1>
+      <p class="lead">
+        Effortlessly create, organize, and study your flashcards and decks.
+      </p>
+      <hr class="my-4" />
+      <p>
+        <a
+          class="btn btn-primary btn-lg"
+          href="{% url 'flashcards:flashcard-list' %}"
+          role="button"
+          >View Flashcards</a
+        >
+        <a
+          class="btn btn-secondary btn-lg"
+          href="{% url 'flashcards:deck-list' %}"
+          role="button"
+          >View Decks</a
+        >
+      </p>
+    </div>
+    <div class="mt-5">
+      <h2>Getting Started</h2>
+      <ul>
+        <li>Create new flashcards and decks from the menu.</li>
+        <li>Review and edit your content anytime.</li>
+        <li>Organize your studies for best results!</li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock %}

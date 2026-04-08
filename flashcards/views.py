@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.base import TemplateView
 
 
 from flashcards.models import Deck, Flashcard
@@ -54,3 +55,7 @@ class DeckCreateView(LoginRequiredMixin, generic.CreateView):
 class DeckDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Deck
     success_url = reverse_lazy("flashcards:deck-list")
+
+
+class HomeView(TemplateView):
+    template_name = "flashcards/home.html"
