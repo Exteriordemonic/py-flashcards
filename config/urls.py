@@ -22,7 +22,7 @@ from flashcards.views import HomeView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("/", HomeView.as_view(), name="home"),
+    path("", HomeView.as_view(), name="home"),
     path(
         "flashcards/",
         include(("flashcards.urls", "flashcards"), namespace="flashcards"),

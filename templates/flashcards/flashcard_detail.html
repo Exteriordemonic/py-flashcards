@@ -1,17 +1,28 @@
 {% extends "base.html" %}
 
 {% block header %}
-    <h1>Flashcard</h1> 
-    <a href="{% url "flashcards:flashcard-list" %}">Back</a>
-
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Flashcard</h1>
+    <a href="{% url 'flashcards:flashcard-list' %}" class="btn btn-outline btn-sm">Back</a>
+  </header>
 {% endblock %}
 
 {% block content %}
-        Q: {{ object.question }}
-        <br>
-        A: {{ object.correct_answer }}
-
-        <br>
-        <a href="{% url "flashcards:flashcard-update" pk=object.id %}">Update</a>
-        <a href="{% url "flashcards:flashcard-delete" pk=object.id %}">Delete</a>
+<div class="container mx-auto max-w-lg px-4">
+  <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
+    <div class="card-body">
+      <div class="mb-6">
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Question</div>
+        <div class="text-xl font-bold text-base-content mb-6">{{ object.question }}</div>
+        <div class="divider"></div>
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Answer</div>
+        <div class="text-base-content mb-4">{{ object.correct_answer }}</div>
+      </div>
+      <div class="flex gap-2">
+        <a href="{% url 'flashcards:flashcard-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>
+        <a href="{% url 'flashcards:flashcard-delete' pk=object.id %}" class="btn btn-error btn-sm">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

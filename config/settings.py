@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "tailwind",
     "theme",
+    "crispy_forms",
+    "crispy_tailwind",
     "users",
     "flashcards",
 ]
@@ -51,6 +53,8 @@ if DEBUG:
     INSTALLED_APPS += ["django_browser_reload"]
 
 TAILWIND_APP_NAME = "theme"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+CRISPY_TEMPLATE_PACK = "tailwind"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -144,6 +148,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 LOGIN_REDIRECT_URL = "flashcards:flashcard-list"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "users:login"
 
 NPM_BIN_PATH = r"C:\nvm4w\nodejs\npm.cmd"

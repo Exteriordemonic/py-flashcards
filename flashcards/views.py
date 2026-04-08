@@ -10,6 +10,11 @@ from flashcards.models import Deck, Flashcard
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
     model = Flashcard
 
+    def get_queryset(self):
+        return Flashcard.objects.filter(
+            created_by=self.request.user
+        ).prefetch_related("deck")
+
 
 class FlashcardDetailView(LoginRequiredMixin, generic.DetailView):
     model = Flashcard
