@@ -31,4 +31,24 @@ class FlashcardDeleteView(generic.DeleteView):
 
 class DeckListView(generic.ListView):
     model = Deck
+
+
+class DeckDetailView(generic.DetailView):
+    model = Deck
+
+
+class DeckUpdateView(generic.UpdateView):
+    model = Deck
+    fields = "__all__"
+    success_url = reverse_lazy("flashcards:deck-list")
+
+
+class DeckCreateView(generic.CreateView):
+    model = Deck
+    fields = "__all__"
+    success_url = reverse_lazy("flashcards:deck-list")
+
+
+class DeckDeleteView(generic.DeleteView):
+    model = Deck
     success_url = reverse_lazy("flashcards:deck-list")
