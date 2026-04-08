@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Deck</h1> 
+    <a href="{% url "flashcards:deck-list" %}">Back</a>
+
+{% endblock %}
+
+{% block content %}
+        Name: {{ object.name }}
+
+        <br>
+        <a href="{% url "flashcards:deck-update" pk=object.id %}">Update</a>
+        <a href="{% url "flashcards:deck-delete" pk=object.id %}">Delete</a>
+{% endblock %}

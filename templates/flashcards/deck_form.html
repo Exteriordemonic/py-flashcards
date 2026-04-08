@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Deck</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+    {% if object %}
+        <a href="{% url 'flashcards:deck-detail' pk=object.pk %}">Cancel</a>
+    {% endif %}
+
+{% endblock %}

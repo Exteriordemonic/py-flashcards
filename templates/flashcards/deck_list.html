@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Decks</h1>
+    <a href="{% url "flashcards:deck-create" %}">Create</a>
+{% endblock %}
+
+{% block content %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Cards</th>
+        </tr>
+        {% for deck in object_list %}
+        <tr>
+            <td><a href="{% url "flashcards:deck-detail" pk=deck.id %}"> {{ deck.id }}</a></td>
+            <td>{{ deck.name }}</td>
+            <td>TBD</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

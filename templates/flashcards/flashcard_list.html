@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Flashcards</h1>
+    <a href="{% url "flashcards:flashcard-create" %}">Create</a>
+{% endblock %}
+
+{% block content %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Question</th>
+        </tr>
+        {% for flashcard in object_list %}
+        <tr>
+            <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}"> {{ flashcard.id }}</a></td>
+            <td>{{ flashcard.question }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
