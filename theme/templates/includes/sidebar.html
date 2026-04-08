@@ -1,0 +1,27 @@
+<label
+  for="my-drawer-3"
+  aria-label="close sidebar"
+  class="drawer-overlay"
+></label>
+<ul class="menu bg-base-200 min-h-full w-80 p-4">
+	<li>
+		<a href="{% url 'home' %}" class="text-xl">Flashcards</a>
+	</li>
+  <!-- Sidebar content here -->
+  <li><a href="{% url 'flashcards:flashcard-list' %}">All Flashcards</a></li>
+  <li><a href="{% url 'flashcards:deck-list' %}">All Decks</a></li>
+  <li><a href="{% url 'flashcards:flashcard-create' %}">Create Flashcard</a></li>
+  <li><a href="{% url 'flashcards:deck-create' %}">Create Deck</a></li>
+  {% if user.is_authenticated %}
+    <li>
+      <form method="post" action="{% url 'users:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost w-full text-left">Logout ({{ user.username }})</button>
+      </form>
+    </li>
+  {% else %}
+    <li>
+      <a href="{% url 'users:login' %}">Login</a>
+    </li>
+  {% endif %}
+</ul>

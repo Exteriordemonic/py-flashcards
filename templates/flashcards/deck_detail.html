@@ -1,15 +1,48 @@
 {% extends "base.html" %}
 
 {% block header %}
-    <h1>Deck</h1> 
-    <a href="{% url "flashcards:deck-list" %}">Back</a>
-
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Deck</h1>
+    <a href="{% url 'flashcards:deck-list' %}" class="btn btn-outline btn-sm">Back</a>
+  </header>
 {% endblock %}
 
 {% block content %}
-        Name: {{ object.name }}
-
-        <br>
-        <a href="{% url "flashcards:deck-update" pk=object.id %}">Update</a>
-        <a href="{% url "flashcards:deck-delete" pk=object.id %}">Delete</a>
+<div class="container mx-auto max-w-lg px-4">
+  <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
+    <div class="card-body">
+      <div class="mb-6">
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Name</div>
+        <div class="text-xl font-bold text-base-content mb-6">{{ object.name }}</div>
+        <div class="divider"></div>
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Flashcards</div>
+        <div class="text-base-content mb-4">
+        <ul class="list-disc pl-6 space-y-2">
+          {% for flashcard in object.flashcards.all %}
+            <li>
+              <a href="{% url 'flashcards:flashcard-detail' pk=flashcard.id %}" class="link link-hover text-base-content">
+                {{ flashcard.question }}
+              </a>
+            </li>
+          {% empty %}
+            <li class="text-base-content/60 italic">No flashcards in this deck.</li>
+          {% endfor %}
+        </ul>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        {% if is_deck_owner %}
+            <a href="{% url 'flashcards:deck-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>
+            <a href="{% url 'flashcards:deck-delete' pk=object.id %}" class="btn btn-error btn-sm">Delete</a>
+        {% else %}
+            {% if is_member %}
+            <a href="{% url 'flashcards:deck-remove' pk=object.id %}" class="btn btn-primary btn-sm">Remove</a>
+            {% else %}
+            <a href="{% url 'flashcards:deck-add' pk=object.id %}" class="btn btn-primary btn-sm">Add</a>
+            {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

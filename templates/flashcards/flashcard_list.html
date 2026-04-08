@@ -1,21 +1,44 @@
 {% extends "base.html" %}
 
 {% block header %}
-    <h1>Flashcards</h1>
-    <a href="{% url "flashcards:flashcard-create" %}">Create</a>
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Flashcards</h1>
+    <a href="{% url 'flashcards:flashcard-create' %}" class="btn btn-primary">
+      Create Flashcard
+    </a>
+  </header>
 {% endblock %}
 
 {% block content %}
-    <table>
-        <tr>
-            <th>ID</th>
+<div class="container p-4">
+  <div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+      <table class="table">
+        <!-- head -->
+        <thead>
+          <tr>
+            <th></th>
             <th>Question</th>
-        </tr>
-        {% for flashcard in object_list %}
-        <tr>
-            <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}"> {{ flashcard.id }}</a></td>
-            <td>{{ flashcard.question }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+            <th>Deck</th>
+          </tr>
+        </thead>
+        <!-- body -->
+        <tbody>
+          {% for flashcard in object_list %}
+          <tr>
+              <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}"> {{ flashcard.id }}</a></td>
+              <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}">{{ flashcard.question }}</a></td>
+              <td>
+                {% for deck in flashcard.deck.all %}
+                  <a href="{% url 'flashcards:deck-detail' pk=deck.id %}" class="btn btn-ghost btn-xs">{{ deck.name }}</a>
+                {% empty %}
+                  -
+                {% endfor %}
+              </td>
+    
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
 {% endblock %}

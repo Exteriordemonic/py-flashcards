@@ -13,6 +13,12 @@ class FlashcardAndDeckViewsTests(TestCase):
             username="view_user",
             password="secret123",
         )
+
+        self.user2 = User.objects.create_user(
+            username="view_user2",
+            password="secret123",
+        )
+
         self.client.login(username="view_user", password="secret123")
 
         self.flashcard = Flashcard.objects.create(
@@ -83,3 +89,56 @@ class FlashcardAndDeckViewsTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Deck.objects.filter(id=self.deck.id).exists())
+
+    def test_flashcard_list_show_current_user_flashcardsdef(self):
+        # Test that flashcard list view only shows flashcards created by current user
+        Flashcard.objects.create(
+            question="Question owned by user2",
+            answer_a="A",
+            answer_b="B",
+            answer_c="C",
+            answer_d="D",
+            correct_answer="A",
+            created_by=self.user2,
+        )
+        response = self.client.get(reverse("flashcards:flashcard-list"))
+
+        self.assertEqual(response.status_code, 200)
+        # Should contain current user's flashcard
+        self.assertContains(response, self.flashcard.question)
+        # Should not contain flashcard of the other user
+        self.assertNotContains(response, "Question owned by user2")
+
+    def test_flashcard_list_show_correct_data_for_decks(self):
+        flashcard = Flashcard.objects.create(
+            question="Question owned by user2",
+            answer_a="A",
+            answer_b="B",
+            answer_c="C",
+            answer_d="D",
+            correct_answer="A",
+            created_by=self.user,
+        )
+
+        flashcard.deck.set([self.deck])
+
+        response = self.client.get(reverse("flashcards:flashcard-list"))
+        self.assertEqual(response.status_code, 200)
+        # Should contains the deck name
+        self.assertContains(response, self.deck.name)
+
+    def test_deck_detail_view_that_is_not_user(self):
+        self.client.login(username="view_user2", password="secret123")
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "add")
+
+        self.deck.member.add(self.user2)
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        self.assertContains(response, "remove")
