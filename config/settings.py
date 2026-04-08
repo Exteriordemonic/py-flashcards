@@ -129,5 +129,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # We are using custom user model to future
 AUTH_USER_MODEL = "users.User"
 
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "flashcards:flashcard-list"
 LOGOUT_REDIRECT_URL = "login"
