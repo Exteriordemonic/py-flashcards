@@ -1,5 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import "tailwindcss";
-@plugin "daisyui";
 
 /**
   * A catch-all path to Django template files, JavaScript, and Python files
@@ -9,10 +9,16 @@
   * the scope of this path.
   */
 
+/* Apply Roboto as the default font for the app */
+/* Use the 'body' selector to set Roboto as the default font, since @theme is unsupported in Tailwind v4 */
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
 @plugin "daisyui" {
   themes:
     light --default,
-    dark --prefersdark,
+    dark --preferslight,
     cupcake;
 }
 @source "../../../**/*.{html,py,js}";

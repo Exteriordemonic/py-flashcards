@@ -1,4 +1,3 @@
-import keyword
 from django.contrib.auth.views import login_required
 from django.urls import reverse_lazy
 from django.views import generic
@@ -8,6 +7,7 @@ from django.shortcuts import redirect
 
 
 from flashcards.models import Deck, Flashcard
+from flashcards.forms import FlashcardForm, DeckForm
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -25,14 +25,20 @@ class FlashcardDetailView(LoginRequiredMixin, generic.DetailView):
 
 class FlashcardUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Flashcard
-    fields = "__all__"
+    form_class = FlashcardForm
+
     success_url = reverse_lazy("flashcards:flashcard-list")
 
 
 class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
     model = Flashcard
-    fields = "__all__"
+    form_class = FlashcardForm
+
     success_url = reverse_lazy("flashcards:flashcard-list")
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
 
 
 class FlashcardDeleteView(LoginRequiredMixin, generic.DeleteView):
@@ -63,14 +69,18 @@ class DeckDetailView(LoginRequiredMixin, generic.DetailView):
 
 class DeckUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Deck
-    fields = "__all__"
+    form_class = DeckForm
     success_url = reverse_lazy("flashcards:deck-list")
 
 
 class DeckCreateView(LoginRequiredMixin, generic.CreateView):
     model = Deck
-    fields = "__all__"
+    form_class = DeckForm
     success_url = reverse_lazy("flashcards:deck-list")
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class DeckDeleteView(LoginRequiredMixin, generic.DeleteView):
