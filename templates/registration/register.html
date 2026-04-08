@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h2>Register</h2>
+{% endblock header %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Register</button>
+</form>
+{% endblock %}
