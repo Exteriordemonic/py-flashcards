@@ -24,9 +24,11 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
     model = Flashcard
 
     def get_queryset(self):
-        return Flashcard.objects.filter(
-            created_by=self.request.user
-        ).select_related("deck")
+        return (
+            Flashcard.objects.filter(created_by=self.request.user)
+            .select_related("deck")
+            .only("question", "deck_id", "deck__name")
+        )
 
 
 class FlashcardDetailView(
