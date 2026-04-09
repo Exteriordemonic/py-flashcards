@@ -30,7 +30,7 @@
               <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}">{{ flashcard.question }}</a></td>
               <td>
                 {% if flashcard.deck %}
-                  <a href="{% url 'flashcards:deck-detail' pk=flashcard.deck.id %}" class="btn btn-ghost btn-xs">{{ flashcard.deck.name }}</a>
+                  <a href="{% url 'decks:deck-detail' pk=flashcard.deck.id %}" class="btn btn-ghost btn-xs">{{ flashcard.deck.name }}</a>
                 {% else %}
                   -
                 {% endif %}
