@@ -12,6 +12,11 @@ class TestUrls(TestCase):
         self.user = User.objects.create_user(
             username="testuser", password="testpassword"
         )
+
+        self.user2 = User.objects.create_user(
+            username="testuser2", password="testpassword2"
+        )
+
         self.client.login(username="testuser", password="testpassword")
 
     def create_flashcard(self):
@@ -130,3 +135,63 @@ class TestUrls(TestCase):
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_have_no_access_to_the_deck(self):
+        deck = self.create_deck()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": deck.id})
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_tries_to_delete_not_owned_deck(self):
+        deck = self.create_deck()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:deck-delete", kwargs={"pk": deck.id})
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_tries_to_update_not_owned_deck(self):
+        deck = self.create_deck()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:deck-update", kwargs={"pk": deck.id})
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_tries_to_view_not_owned_flashcard(self):
+        flashcard = self.create_flashcard()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_tries_to_update_not_owned_flashcard(self):
+        flashcard = self.create_flashcard()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_redirect_if_user_tries_to_delete_not_owned_flashcard(self):
+        flashcard = self.create_flashcard()
+
+        self.client.login(username="testuser1", password="testpassword2")
+        response = self.client.get(
+            reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
+        )
+
+        self.assertEqual(response.status_code, 302)

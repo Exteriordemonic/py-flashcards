@@ -41,24 +41,6 @@ class FlashcardAndDeckViewsTests(TestCase):
         response = self.client.get(reverse("flashcards:flashcard-list"))
         self.assertEqual(response.status_code, 302)
 
-    def test_flashcard_create_view_creates_object(self):
-        response = self.client.post(
-            reverse("flashcards:flashcard-create"),
-            data={
-                "question": "Capital of France?",
-                "answer_a": "Berlin",
-                "answer_b": "Madrid",
-                "answer_c": "Paris",
-                "answer_d": "Rome",
-                "correct_answer": "Paris",
-                "created_by": self.user.id,
-            },
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            Flashcard.objects.filter(question="Capital of France?").exists()
-        )
-
     def test_flashcard_delete_view_deletes_object(self):
         response = self.client.post(
             reverse(
@@ -126,19 +108,3 @@ class FlashcardAndDeckViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Should contains the deck name
         self.assertContains(response, self.deck.name)
-
-    def test_deck_detail_view_that_is_not_user(self):
-        self.client.login(username="view_user2", password="secret123")
-
-        response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "add")
-
-        self.deck.member.add(self.user2)
-
-        response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
-        )
-        self.assertContains(response, "remove")

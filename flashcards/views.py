@@ -1,11 +1,10 @@
-from django.contrib.auth.views import login_required
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
-from django.shortcuts import redirect
 
 
+from flashcards.mixins import OwnerRequiredMixin, CreatedByRequiredMixin
 from flashcards.models import Deck, Flashcard
 from flashcards.forms import FlashcardForm, DeckForm
 
@@ -19,11 +18,15 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
         ).prefetch_related("deck")
 
 
-class FlashcardDetailView(LoginRequiredMixin, generic.DetailView):
+class FlashcardDetailView(
+    LoginRequiredMixin, CreatedByRequiredMixin, generic.DetailView
+):
     model = Flashcard
 
 
-class FlashcardUpdateView(LoginRequiredMixin, generic.UpdateView):
+class FlashcardUpdateView(
+    LoginRequiredMixin, CreatedByRequiredMixin, generic.UpdateView
+):
     model = Flashcard
     form_class = FlashcardForm
 
@@ -41,7 +44,9 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
 
-class FlashcardDeleteView(LoginRequiredMixin, generic.DeleteView):
+class FlashcardDeleteView(
+    LoginRequiredMixin, CreatedByRequiredMixin, generic.DeleteView
+):
     model = Flashcard
     success_url = reverse_lazy("flashcards:flashcard-list")
 
@@ -53,7 +58,9 @@ class DeckListView(LoginRequiredMixin, generic.ListView):
         return Deck.objects.filter(members=self.request.user)
 
 
-class DeckDetailView(LoginRequiredMixin, generic.DetailView):
+class DeckDetailView(
+    LoginRequiredMixin, OwnerRequiredMixin, generic.DetailView
+):
     model = Deck
 
     def get_context_data(self, **kwargs):
@@ -67,7 +74,9 @@ class DeckDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
-class DeckUpdateView(LoginRequiredMixin, generic.UpdateView):
+class DeckUpdateView(
+    LoginRequiredMixin, OwnerRequiredMixin, generic.UpdateView
+):
     model = Deck
     form_class = DeckForm
     success_url = reverse_lazy("flashcards:deck-list")
@@ -83,23 +92,11 @@ class DeckCreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
 
-class DeckDeleteView(LoginRequiredMixin, generic.DeleteView):
+class DeckDeleteView(
+    LoginRequiredMixin, OwnerRequiredMixin, generic.DeleteView
+):
     model = Deck
     success_url = reverse_lazy("flashcards:deck-list")
-
-
-@login_required
-def deck_add(request, pk):
-    current_user = request.user
-    Deck.objects.get(id=pk).members.add(current_user)
-    return redirect("flashcards:deck-detail", pk=pk)
-
-
-@login_required
-def deck_remove(request, pk):
-    current_user = request.user
-    Deck.objects.get(id=pk).members.remove(current_user)
-    return redirect("flashcards:deck-detail", pk=pk)
 
 
 class HomeView(TemplateView):
