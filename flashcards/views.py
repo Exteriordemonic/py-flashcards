@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 
 
+from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
 from flashcards.models import Deck, Flashcard
 from flashcards.forms import FlashcardForm, DeckForm
 
@@ -17,11 +18,15 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
         ).select_related("deck")
 
 
-class FlashcardDetailView(LoginRequiredMixin, generic.DetailView):
+class FlashcardDetailView(
+    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView
+):
     model = Flashcard
 
 
-class FlashcardUpdateView(LoginRequiredMixin, generic.UpdateView):
+class FlashcardUpdateView(
+    LoginRequiredMixin, CreatedByQuerysetMixin, generic.UpdateView
+):
     model = Flashcard
     form_class = FlashcardForm
 
@@ -53,32 +58,35 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
         return super().form_valid(form)
 
 
-class FlashcardDeleteView(LoginRequiredMixin, generic.DeleteView):
+class FlashcardDeleteView(
+    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DeleteView
+):
     model = Flashcard
     success_url = reverse_lazy("flashcards:flashcard-list")
 
 
-class DeckListView(LoginRequiredMixin, generic.ListView):
+class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     model = Deck
 
-    def get_queryset(self):
-        return Deck.objects.prefetch_related("flashcards").filter(
-            owner=self.request.user
-        )
 
-
-class DeckDetailView(LoginRequiredMixin, generic.DetailView):
+class DeckDetailView(
+    LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView
+):
     model = Deck
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        deck = self.object
-        context["is_deck_owner"] = deck.owner_id == self.request.user.pk
+
+        context["flashcards"] = self.object.flashcards.filter(
+            created_by=self.request.user
+        )
 
         return context
 
 
-class DeckUpdateView(LoginRequiredMixin, generic.UpdateView):
+class DeckUpdateView(
+    LoginRequiredMixin, OwnerQuerysetMixin, generic.UpdateView
+):
     model = Deck
     form_class = DeckForm
     success_url = reverse_lazy("flashcards:deck-list")
@@ -97,6 +105,11 @@ class DeckCreateView(LoginRequiredMixin, generic.CreateView):
 class DeckDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Deck
     success_url = reverse_lazy("flashcards:deck-list")
+
+    def get_queryset(self):
+        return Deck.objects.prefetch_related("flashcards").filter(
+            owner=self.request.user,
+        )
 
 
 class HomeView(TemplateView):

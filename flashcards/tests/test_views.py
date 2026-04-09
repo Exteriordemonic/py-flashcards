@@ -113,7 +113,7 @@ class FlashcardAndDeckViewsTests(TestCase):
         self.assertNotContains(response, "Question owned by user2")
 
     def test_flashcard_list_show_correct_data_for_decks(self):
-        flashcard = Flashcard.objects.create(
+        Flashcard.objects.create(
             question="Question owned by user2",
             answer_a="A",
             answer_b="B",
@@ -135,6 +135,25 @@ class FlashcardAndDeckViewsTests(TestCase):
         response = self.client.get(
             reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
         )
+        self.assertEqual(response.status_code, 404)
+
+    def test_deck_show_only_owner_flashcards_on_deck(self):
+        Flashcard.objects.create(
+            question="Question for user 2",
+            answer_a="A",
+            answer_b="B",
+            answer_c="C",
+            answer_d="D",
+            correct_answer="A",
+            deck=self.deck,
+            created_by=self.user2,
+        )
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        # Ensure user is owner to view flashcards in deck;
+        # user2 flashcard should NOT appear
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Add")
-        self.assertNotContains(response, "Remove")
+        response_content = response.content.decode()
+        self.assertNotIn("Question for user 2", response_content)
