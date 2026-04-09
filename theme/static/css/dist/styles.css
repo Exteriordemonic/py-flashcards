@@ -1763,6 +1763,9 @@
       color: color-mix(in oklab, var(--color-base-content) 90%, transparent);
     }
   }
+  .text-error {
+    color: var(--color-error);
+  }
   .text-gray-600 {
     color: var(--color-gray-600);
   }

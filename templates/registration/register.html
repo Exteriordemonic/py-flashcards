@@ -1,13 +1,24 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
 {% block header %}
-<h2>Register</h2>
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Register</h1>
+    <a href="{% url 'users:login' %}" class="btn btn-outline btn-sm">Login</a>
+  </header>
 {% endblock header %}
 
 {% block content %}
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Register</button>
-</form>
+<div class="container mx-auto max-w-lg px-4">
+  <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
+    <div class="card-body">
+      <form method="post" class="flex flex-col gap-4">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="btn btn-primary mt-4">Register</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
