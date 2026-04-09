@@ -28,7 +28,7 @@
               <td><a href="{% url "flashcards:deck-detail" pk=deck.id %}"> {{ deck.id }}</a></td>
               <td><a href="{% url "flashcards:deck-detail" pk=deck.id %}">{{ deck.name }}</a></td>
               <td>
-                {{ deck.flashcards.count }}
+                {{ deck.flashcards_count }}
               </td>
           </tr>
           {% endfor %}
