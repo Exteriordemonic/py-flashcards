@@ -65,6 +65,13 @@ class FlashcardDeleteView(
     success_url = reverse_lazy("flashcards:flashcard-list")
 
 
+class FlashcardReviewView(
+    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView
+):
+    model = Flashcard
+    template_name = "flashcards/flashcard_review.html"
+
+
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     model = Deck
 

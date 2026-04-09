@@ -11,6 +11,7 @@ from flashcards.views import (
     DeckDetailView,
     DeckUpdateView,
     DeckDeleteView,
+    FlashcardReviewView,
 )
 
 
@@ -28,6 +29,11 @@ urlpatterns = [
         "<int:pk>/delete/",
         FlashcardDeleteView.as_view(),
         name="flashcard-delete",
+    ),
+    path(
+        "<int:pk>/review/",
+        FlashcardReviewView.as_view(),
+        name="flashcard-review",
     ),
     # Decks
     path("decks/", DeckListView.as_view(), name="deck-list"),

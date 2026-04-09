@@ -197,3 +197,23 @@ class TestUrls(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    def test_review_flashcard(self):
+        flashcard = self.create_flashcard()
+
+        response = self.client.get(
+            reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_review_flashcard_without_access_returns_404(self):
+        flashcard = self.create_flashcard()
+
+        self.client.login(username="testuser2", password="testpassword2")
+
+        response = self.client.get(
+            reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
+        )
+
+        self.assertEqual(response.status_code, 404)
