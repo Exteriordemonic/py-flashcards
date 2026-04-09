@@ -7,7 +7,7 @@ from django.db import IntegrityError, transaction
 
 
 from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
-from flashcards.models import Deck, Flashcard
+from flashcards.models import Deck, Flashcard, Review
 from flashcards.forms import (
     FlashcardForm,
     DeckForm,
@@ -111,6 +111,14 @@ class FlashcardReviewView(
         context["is_correct"] = is_correct
         context["correct_answer"] = self.object.correct_answer
         context["feedback_message"] = feedback_message
+
+        Review.objects.create(
+            flashcard=self.object,
+            user=self.request.user,
+            quality=(
+                Review.Quality.PERFECT if is_correct else Review.Quality.HARD
+            ),
+        )
 
         return self.render_to_response(context)
 

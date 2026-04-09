@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from flashcards.models import Deck, Flashcard
+from flashcards.models import Deck, Flashcard, Review
 
 User = get_user_model()
 
@@ -213,3 +213,17 @@ class FlashcardReviewTests(TestCase):
         self.assertIn(
             "incorrect", content.lower()
         )  # Should mention it's incorrect
+
+    def test_review_created_after_post(self):
+        url = reverse("flashcards:flashcard-review", args=[self.flashcard.id])
+
+        data = {"selected_answer": self.flashcard.answer_a}
+
+        self.client.post(url, data=data)
+
+        self.assertEqual(Review.objects.count(), 1)
+
+        review = Review.objects.first()
+
+        self.assertEqual(review.user, self.user)
+        self.assertEqual(review.flashcard, self.flashcard)
