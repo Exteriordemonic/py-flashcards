@@ -6,10 +6,11 @@ charset-normalizer==3.4.7
 click==8.3.2
 colorama==0.4.6
 cookiecutter==2.7.1
-Django==5.2.12
-django-crispy-forms==2.4
-django-browser-reload==1.21.0
 crispy-tailwind==1.0.3
+Django==5.2.12
+django-browser-reload==1.21.0
+django-crispy-forms==2.4
+django-debug-toolbar==6.3.0
 django-tailwind==4.4.2
 honcho==2.0.0
 idna==3.11
