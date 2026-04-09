@@ -1,0 +1,32 @@
+{% load static tailwind_tags %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Flashcards</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    {% tailwind_css %}
+  </head>
+
+  <body class="font-serif leading-normal tracking-normal">
+    {% include "includes/tw_crispy_safelist.html" %}
+    <div class="drawer lg:drawer-open">
+      <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
+      <!-- Sidebar -->
+      <div class="drawer-side">
+        {% include "includes/sidebar.html" %}
+      </div>
+      <!-- Main content -->
+      <div class="drawer-content min-h-screen">
+        {% block header %}{% endblock header %}
+        <main class="flex-grow flex flex-col items-center justify-center">
+          {% block content %}{% endblock content %}
+        </main>
+        <label for="my-drawer-3" class="btn drawer-button lg:hidden fixed bottom-4 right-4 z-50">
+          Open drawer
+        </label>
+      </div>
+    </div>
+  </body>
+</html>

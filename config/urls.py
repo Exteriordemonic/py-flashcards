@@ -14,9 +14,35 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from django.conf import settings
+from debug_toolbar.toolbar import debug_toolbar_urls
+
+
+from flashcards.views import HomeView
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-]
+    path("admin/", admin.site.urls),
+    path("", HomeView.as_view(), name="home"),
+    path(
+        "decks/",
+        include(("decks.urls", "decks"), namespace="decks"),
+    ),
+    path(
+        "flashcards/",
+        include(("flashcards.urls", "flashcards"), namespace="flashcards"),
+    ),
+    path(
+        "accounts/",
+        include(("users.urls", "users"), namespace="users"),
+    ),
+] + debug_toolbar_urls()
+
+if settings.DEBUG:
+    # Include django_browser_reload URLs only in DEBUG mode
+    urlpatterns += [
+        path("__reload__/", include("django_browser_reload.urls")),
+    ]

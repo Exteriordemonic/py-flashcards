@@ -1,0 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import "tailwindcss";
+
+/**
+  * A catch-all path to Django template files, JavaScript, and Python files
+  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
+  *
+  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
+  * the scope of this path.
+  */
+
+/* Apply Roboto as the default font for the app */
+/* Use the 'body' selector to set Roboto as the default font, since @theme is unsupported in Tailwind v4 */
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --preferslight,
+    cupcake;
+}
+@source "../../../**/*.{html,py,js}";
+
+.radio-button {
+  input {
+    opacity: 0;
+    position: absolute;
+
+    &:checked + label:not(.btn-success) {
+      /* Optional: highlight the checked answer, visually matching .btn-primary */
+      @apply btn-primary;
+
+      &.btn-wrong {
+        @apply btn-error;
+      }
+    }
+  }
+}
