@@ -172,7 +172,7 @@ class FlashcardAndDeckViewsTests(TestCase):
             },
         )
 
-        self.assertIn(response.status_code, [200])
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Flashcard.objects.count(), initial_count + 1)
         flashcard = Flashcard.objects.get(
             question="What is the capital of Italy?"

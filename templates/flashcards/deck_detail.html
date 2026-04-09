@@ -43,7 +43,7 @@
         <div class="text-lg font-semibold mb-4">Create Flashcard</div>
         <form method="post" class="flex flex-col gap-6">
           {% csrf_token %}
-          {{ form_crate_flashcard|crispy }}
+          {{ form_create_flashcard|crispy }}
           <div class="flex gap-2 mt-4">
             <button type="submit" class="btn btn-primary">Add</button>
           </div>

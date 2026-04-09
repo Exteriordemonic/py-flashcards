@@ -82,7 +82,9 @@ class DeckDetailView(
             created_by=self.request.user
         )
 
-        context["form_crate_flashcard"] = FlashcardDeckForm
+        context["form_create_flashcard"] = kwargs.get(
+            "form_create_flashcard", FlashcardDeckForm()
+        )
 
         return context
 
@@ -97,7 +99,10 @@ class DeckDetailView(
             flashcard.created_by = request.user
             flashcard.save()
 
-        return redirect("flashcards:deck-detail", pk=self.object.pk)
+            return redirect("flashcards:deck-detail", pk=self.object.pk)
+
+        context = self.get_context_data(form_create_flashcard=form)
+        return self.render_to_response(context)
 
 
 class DeckUpdateView(
