@@ -51,7 +51,7 @@ class FlashcardAndDeckViewsTests(TestCase):
                 "answer_b": "Madrid",
                 "answer_c": "Paris",
                 "answer_d": "Rome",
-                "correct_answer": "C",
+                "correct_answer": "Paris",
                 "deck": self.deck.id,
                 "created_by": self.user.id,
             },
@@ -225,7 +225,7 @@ class FlashcardReviewTests(TestCase):
                 "answer_b": "Rome",
                 "answer_c": "Berlin",
                 "answer_d": "Madrid",
-                "correct_answer": "B",
+                "correct_answer": "Rome",
             },
         )
 
@@ -252,7 +252,7 @@ class FlashcardReviewTests(TestCase):
                 "answer_b": "B1",
                 "answer_c": "C1",
                 "answer_d": "D1",
-                "correct_answer": "A",
+                "correct_answer": "A1",
                 "deck": another_deck.id,
             },
         )
@@ -267,11 +267,11 @@ class FlashcardReviewTests(TestCase):
             reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
             data={
                 "question": "Unauthorized add attempt",
-                "answer_a": "A",
-                "answer_b": "B",
-                "answer_c": "C",
-                "answer_d": "D",
-                "correct_answer": "A",
+                "answer_a": "Alpha",
+                "answer_b": "Beta",
+                "answer_c": "Gamma",
+                "answer_d": "Delta",
+                "correct_answer": "Alpha",
             },
         )
         self.assertEqual(
@@ -286,11 +286,11 @@ class FlashcardReviewTests(TestCase):
             reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
             data={
                 "question": "",  # invalid: required
-                "answer_a": "A",
-                "answer_b": "B",
-                "answer_c": "C",
-                "answer_d": "D",
-                "correct_answer": "A",
+                "answer_a": "Alpha",
+                "answer_b": "Beta",
+                "answer_c": "Gamma",
+                "answer_d": "Delta",
+                "correct_answer": "Alpha",
             },
         )
 
@@ -307,7 +307,7 @@ class FlashcardReviewTests(TestCase):
                 "answer_b": "4",
                 "answer_c": "5",
                 "answer_d": "6",
-                "correct_answer": "B",
+                "correct_answer": "4",
             },
         )
 
@@ -326,7 +326,7 @@ class FlashcardReviewTests(TestCase):
                 "answer_b": "4",
                 "answer_c": "5",
                 "answer_d": "6",
-                "correct_answer": "B",
+                "correct_answer": "4",
                 "deck": self.deck.id,
             },
         )
