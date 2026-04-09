@@ -20,8 +20,10 @@ class Flashcard(models.Model):
     correct_answer = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    deck = models.ManyToManyField(
-        to="Deck", related_name="flashcards", blank=True
+    deck = models.ForeignKey(
+        to="Deck",
+        on_delete=models.CASCADE,
+        related_name="flashcards",
     )
     created_by = models.ForeignKey(
         to=User,
@@ -100,12 +102,6 @@ class Deck(models.Model):
     owner = models.ForeignKey(
         to=User, on_delete=models.CASCADE, related_name="decks"
     )
-    members = models.ManyToManyField(to=User, related_name="decks_member")
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.members.filter(id=self.owner_id).exists():
-            self.members.add(self.owner)
 
     def __str__(self):
         return self.name

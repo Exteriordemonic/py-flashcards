@@ -14,10 +14,10 @@ class DeckModelTests(TestCase):
             password="secret123",
         )
 
-    def test_owner_is_automatically_added_to_members(self):
+    def test_deck_has_owner(self):
         deck = Deck.objects.create(name="Python Basics", owner=self.user)
 
-        self.assertTrue(deck.members.filter(id=self.user.id).exists())
+        self.assertEqual(deck.owner, self.user)
 
     def test_deck_name_is_unique_per_owner(self):
         Deck.objects.create(name="My Deck", owner=self.user)
@@ -32,6 +32,11 @@ class FlashcardModelTests(TestCase):
             username="flashcard_owner",
             password="secret123",
         )
+        deck_owner = User.objects.create_user(
+            username="deck_owner",
+            password="secret123",
+        )
+        deck = Deck.objects.create(name="Owner Deck", owner=deck_owner)
         flashcard = Flashcard.objects.create(
             question="What is 2 + 2?",
             answer_a="3",
@@ -39,6 +44,7 @@ class FlashcardModelTests(TestCase):
             answer_c="5",
             answer_d="6",
             correct_answer="4",
+            deck=deck,
             created_by=user,
         )
 
@@ -61,6 +67,7 @@ class FlashcardUserStateModelTests(TestCase):
             answer_c="Gdansk",
             answer_d="Wroclaw",
             correct_answer="Warsaw",
+            deck=Deck.objects.create(name="State Deck", owner=user),
             created_by=user,
         )
 

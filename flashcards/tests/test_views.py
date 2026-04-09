@@ -28,9 +28,10 @@ class FlashcardAndDeckViewsTests(TestCase):
             answer_c="5",
             answer_d="6",
             correct_answer="4",
+            deck=Deck.objects.create(name="Math", owner=self.user),
             created_by=self.user,
         )
-        self.deck = Deck.objects.create(name="Math", owner=self.user)
+        self.deck = self.flashcard.deck
 
     def test_flashcard_list_view_for_logged_user(self):
         response = self.client.get(reverse("flashcards:flashcard-list"))
@@ -41,6 +42,24 @@ class FlashcardAndDeckViewsTests(TestCase):
         response = self.client.get(reverse("flashcards:flashcard-list"))
         self.assertEqual(response.status_code, 302)
 
+    def test_flashcard_create_view_creates_object(self):
+        response = self.client.post(
+            reverse("flashcards:flashcard-create"),
+            data={
+                "question": "Capital of France?",
+                "answer_a": "Berlin",
+                "answer_b": "Madrid",
+                "answer_c": "Paris",
+                "answer_d": "Rome",
+                "correct_answer": "C",
+                "deck": self.deck.id,
+                "created_by": self.user.id,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            Flashcard.objects.filter(question="Capital of France?").exists()
+        )
     def test_flashcard_delete_view_deletes_object(self):
         response = self.client.post(
             reverse(
@@ -81,6 +100,7 @@ class FlashcardAndDeckViewsTests(TestCase):
             answer_c="C",
             answer_d="D",
             correct_answer="A",
+            deck=Deck.objects.create(name="User2 Deck", owner=self.user2),
             created_by=self.user2,
         )
         response = self.client.get(reverse("flashcards:flashcard-list"))
@@ -99,12 +119,18 @@ class FlashcardAndDeckViewsTests(TestCase):
             answer_c="C",
             answer_d="D",
             correct_answer="A",
+            deck=self.deck,
             created_by=self.user,
         )
-
-        flashcard.deck.set([self.deck])
 
         response = self.client.get(reverse("flashcards:flashcard-list"))
         self.assertEqual(response.status_code, 200)
         # Should contains the deck name
         self.assertContains(response, self.deck.name)
+    def test_deck_detail_view_that_is_not_owner(self):
+        self.client.login(username="view_user2", password="secret123")
+
+        response = self.client.get(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+        )
+        self.assertEqual(response.status_code, 302)
