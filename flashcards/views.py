@@ -126,6 +126,9 @@ class FlashcardReviewView(
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     model = Deck
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("flashcards")
+
 
 class DeckDetailView(
     LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView
