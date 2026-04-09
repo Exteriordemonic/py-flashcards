@@ -10,7 +10,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --color-red-500: oklch(63.7% 0.237 25.331);
-    --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-300: oklch(87.2% 0.01 258.338);
     --color-gray-600: oklch(44.6% 0.03 256.802);
     --color-gray-700: oklch(37.3% 0.034 259.733);
@@ -1052,6 +1051,74 @@
     }
   }
   @layer daisyui.l1.l2.l3 {
+    .radio {
+      position: relative;
+      display: inline-block;
+      flex-shrink: 0;
+      cursor: pointer;
+      appearance: none;
+      border-radius: calc(infinity * 1px);
+      padding: calc(0.25rem * 1);
+      vertical-align: middle;
+      border: var(--border) solid var(--input-color, currentColor);
+      box-shadow: 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset;
+      --size: calc(var(--size-selector, 0.25rem) * 6);
+      width: var(--size);
+      height: var(--size);
+      color: var(--input-color, currentColor);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .radio {
+        border: var(--border) solid var(--input-color, color-mix(in srgb, currentColor 20%, #0000));
+      }
+    }
+    .radio:before {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: calc(infinity * 1px);
+      --tw-content: "";
+      content: var(--tw-content);
+      background-size: auto, calc(var(--noise) * 100%);
+      background-image: none, var(--fx-noise);
+    }
+    .radio:focus-visible {
+      outline: 2px solid currentColor;
+    }
+    .radio:checked, .radio[aria-checked="true"] {
+      border-color: currentcolor;
+      background-color: var(--color-base-100);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .radio:checked, .radio[aria-checked="true"] {
+        animation: radio 0.2s ease-out;
+      }
+    }
+    .radio:checked:before, .radio[aria-checked="true"]:before {
+      background-color: currentcolor;
+      box-shadow: 0 -1px oklch(0% 0 0 / calc(var(--depth) * 0.1)) inset, 0 8px 0 -4px oklch(100% 0 0 / calc(var(--depth) * 0.1)) inset, 0 1px oklch(0% 0 0 / calc(var(--depth) * 0.1));
+    }
+    @media (forced-colors: active) {
+      .radio:checked:before, .radio[aria-checked="true"]:before {
+        outline-style: var(--tw-outline-style);
+        outline-width: 1px;
+        outline-offset: calc(1px * -1);
+      }
+    }
+    @media print {
+      .radio:checked:before, .radio[aria-checked="true"]:before {
+        outline: 0.25rem solid;
+        outline-offset: -1rem;
+      }
+    }
+  }
+  @layer daisyui.l1.l2 {
+    .radio:disabled {
+      cursor: not-allowed;
+      opacity: 20%;
+    }
+  }
+  @layer daisyui.l1.l2.l3 {
     .drawer {
       position: relative;
       display: grid;
@@ -1323,9 +1390,6 @@
   .mb-6 {
     margin-bottom: calc(var(--spacing) * 6);
   }
-  .mb-8 {
-    margin-bottom: calc(var(--spacing) * 8);
-  }
   @layer daisyui.l1.l2.l3 {
     .status {
       display: inline-block;
@@ -1421,6 +1485,9 @@
   .flex {
     display: flex;
   }
+  .grid {
+    display: grid;
+  }
   .table {
     display: table;
   }
@@ -1480,6 +1547,9 @@
   .appearance-none {
     appearance: none;
   }
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
   .flex-col {
     flex-direction: column;
   }
@@ -1498,6 +1568,9 @@
   .justify-center {
     justify-content: center;
   }
+  .justify-start {
+    justify-content: flex-start;
+  }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
@@ -1514,6 +1587,11 @@
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+  }
+  :where(.space-y-4 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
   }
   .overflow-x-auto {
     overflow-x: auto;
@@ -1563,9 +1641,6 @@
   .bg-base-200 {
     background-color: var(--color-base-200);
   }
-  .bg-gray-100 {
-    background-color: var(--color-gray-100);
-  }
   .bg-white {
     background-color: var(--color-white);
   }
@@ -1577,9 +1652,6 @@
   }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
-  }
-  .py-4 {
-    padding-block: calc(var(--spacing) * 4);
   }
   .py-6 {
     padding-block: calc(var(--spacing) * 6);
@@ -1781,6 +1853,11 @@
     --tw-outline-style: none;
     outline-style: none;
   }
+  @media (width >= 48rem) {
+    .md\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
   @media (width >= 64rem) {
     @layer daisyui.l1.l2.l3 {
       .lg\:drawer-open > .drawer-toggle:checked ~ .drawer-side {
@@ -1837,7 +1914,21 @@
   }
 }
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
+}
+.radio-button input {
+  opacity: 0;
+  position: absolute;
+}
+.radio-button input:checked + label {
+  border-color: transparent;
+  color: var(--color-white);
+}
+@layer daisyui.l1.l2.l3 {
+  .radio-button input:checked + label {
+    --btn-color: var(--color-primary);
+    --btn-fg: var(--color-primary-content);
+  }
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

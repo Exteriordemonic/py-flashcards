@@ -6,7 +6,7 @@ from django.views.generic.base import TemplateView
 
 from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
 from flashcards.models import Deck, Flashcard
-from flashcards.forms import FlashcardForm, DeckForm
+from flashcards.forms import FlashcardForm, DeckForm, FlashcardReviewForm
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -70,6 +70,16 @@ class FlashcardReviewView(
 ):
     model = Flashcard
     template_name = "flashcards/flashcard_review.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = FlashcardReviewForm(flashcard=self.object)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+
+        return
 
 
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):

@@ -157,3 +157,60 @@ class FlashcardAndDeckViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response_content = response.content.decode()
         self.assertNotIn("Question for user 2", response_content)
+
+
+class FlashcardReviewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="view_user",
+            password="secret123",
+        )
+
+        self.client.login(username="view_user", password="secret123")
+
+        self.flashcard = Flashcard.objects.create(
+            question="Capital of Poland?",
+            answer_a="Warsaw",
+            answer_b="Berlin",
+            answer_c="Krakow",
+            answer_d="Prague",
+            correct_answer="Warsaw",
+            deck=Deck.objects.create(name="Geography", owner=self.user),
+            created_by=self.user,
+        )
+        self.deck = self.flashcard.deck
+
+    def test_review_view_displays_question_and_options(self):
+        url = reverse(
+            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        # Check question and all answers are shown
+        self.assertIn("Capital of Poland?", content)
+        self.assertIn("Warsaw", content)
+        self.assertIn("Berlin", content)
+        self.assertIn("Krakow", content)
+        self.assertIn("Prague", content)
+
+    def test_review_view_allows_answer_submission_and_feedback(self):
+        url = reverse(
+            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
+        )
+
+        # Simulate posting a correct answer
+        response = self.client.post(url, {"selected_answer": "Warsaw"})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn(
+            "correct", content.lower()
+        )  # Should mention it's correct
+
+        # Simulate posting an incorrect answer
+        response = self.client.post(url, {"selected_answer": "Berlin"})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn(
+            "incorrect", content.lower()
+        )  # Should mention it's incorrect
