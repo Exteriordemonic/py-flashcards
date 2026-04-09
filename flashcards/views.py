@@ -1,4 +1,5 @@
 from django.urls import reverse_lazy
+from django.shortcuts import redirect
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
@@ -6,7 +7,7 @@ from django.views.generic.base import TemplateView
 
 from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
 from flashcards.models import Deck, Flashcard
-from flashcards.forms import FlashcardForm, DeckForm
+from flashcards.forms import FlashcardDeckForm, FlashcardForm, DeckForm
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -81,7 +82,22 @@ class DeckDetailView(
             created_by=self.request.user
         )
 
+        context["form_crate_flashcard"] = FlashcardDeckForm
+
         return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()  # Deck
+
+        form = FlashcardDeckForm(request.POST)
+
+        if form.is_valid():
+            flashcard = form.save(commit=False)
+            flashcard.deck = self.object
+            flashcard.created_by = request.user
+            flashcard.save()
+
+        return redirect("flashcards:deck-detail", pk=self.object.pk)
 
 
 class DeckUpdateView(
