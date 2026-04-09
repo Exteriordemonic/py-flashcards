@@ -1,5 +1,6 @@
 from django import forms
 from flashcards.models import Flashcard, Deck
+import random
 
 
 class FlashcardForm(forms.ModelForm):
@@ -65,3 +66,27 @@ class DeckForm(forms.ModelForm):
         fields = [
             "name",
         ]
+
+
+class FlashcardReviewForm(forms.Form):
+    selected_answer = forms.ChoiceField(
+        choices=[],
+        widget=forms.RadioSelect,
+        label="Choose Answer",
+    )
+
+    def __init__(self, *args, flashcard=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if flashcard:
+            choices = [
+                (flashcard.answer_a, flashcard.answer_a),
+                (flashcard.answer_b, flashcard.answer_b),
+                (flashcard.answer_c, flashcard.answer_c),
+                (flashcard.answer_d, flashcard.answer_d),
+            ]
+
+            # Shuffle only on initial display (GET). Keep stable order on POST.
+            if not self.is_bound:
+                random.shuffle(choices)
+
+            self.fields["selected_answer"].choices = choices

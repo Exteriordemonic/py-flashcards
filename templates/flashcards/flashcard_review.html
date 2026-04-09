@@ -1,0 +1,39 @@
+{% extends "base.html" %} {% block header %}
+<header
+  class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4"
+>
+  <h1 class="text-3xl font-bold">{{ object.question }}</h1>
+</header>
+{% endblock %} {% block content %}
+<div class="container p-4">
+  <div
+    class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100"
+  >
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% if feedback_message %}
+      <div class="alert {% if is_correct %}alert-success{% else %}alert-error{% endif %}">
+        <span>{{ feedback_message }}</span>
+      </div>
+      {% endif %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {% for radio in form.selected_answer %}
+        <div class="radio-button">
+          {{ radio.tag }}
+    
+          <label
+            for="{{ radio.id_for_label }}"
+            class="btn w-full justify-start {% if correct_answer == radio.choice_label %}btn-success{% elif feedback_message %}btn-wrong{% endif %}"
+       
+          >
+            {{ radio.choice_label }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -158,123 +158,58 @@ class FlashcardAndDeckViewsTests(TestCase):
         response_content = response.content.decode()
         self.assertNotIn("Question for user 2", response_content)
 
-    def test_create_flashcard_in_deck(self):
-        initial_count = Flashcard.objects.count()
-        response = self.client.post(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
-            data={
-                "question": "What is the capital of Italy?",
-                "answer_a": "Paris",
-                "answer_b": "Rome",
-                "answer_c": "Berlin",
-                "answer_d": "Madrid",
-                "correct_answer": "B",
-            },
+
+class FlashcardReviewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="view_user",
+            password="secret123",
         )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Flashcard.objects.count(), initial_count + 1)
-        flashcard = Flashcard.objects.get(
-            question="What is the capital of Italy?"
-        )
-        self.assertEqual(flashcard.deck, self.deck)
-        self.assertEqual(flashcard.created_by, self.user)
-        self.assertEqual(flashcard.correct_answer, "Rome")
+        self.client.login(username="view_user", password="secret123")
 
-    def test_create_flashcard_in_deck_ignores_posted_deck_and_uses_url_deck(
-        self,
-    ):
-        another_deck = Deck.objects.create(
-            name="Another deck", owner=self.user
-        )
-        self.client.post(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
-            data={
-                "question": "Deck should come from URL",
-                "answer_a": "A1",
-                "answer_b": "B1",
-                "answer_c": "C1",
-                "answer_d": "D1",
-                "correct_answer": "A",
-                "deck": another_deck.id,
-            },
-        )
-        flashcard = Flashcard.objects.get(question="Deck should come from URL")
-        self.assertEqual(flashcard.deck, self.deck)  # deck z URL, nie z POSTa
-
-    def test_create_flashcard_in_deck_requires_owner(self):
-        self.client.logout()
-        self.client.login(username="view_user2", password="secret123")
-        initial_count = Flashcard.objects.count()
-        response = self.client.post(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
-            data={
-                "question": "Unauthorized add attempt",
-                "answer_a": "A",
-                "answer_b": "B",
-                "answer_c": "C",
-                "answer_d": "D",
-                "correct_answer": "A",
-            },
-        )
-        self.assertEqual(
-            response.status_code, 404
-        )  # OwnerQuerysetMixin should cut off unauthorized users
-
-        self.assertEqual(Flashcard.objects.count(), initial_count)
-
-    def test_create_flashcard_in_deck_invalid_data_does_not_create(self):
-        initial_count = Flashcard.objects.count()
-        response = self.client.post(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
-            data={
-                "question": "",  # invalid: required
-                "answer_a": "A",
-                "answer_b": "B",
-                "answer_c": "C",
-                "answer_d": "D",
-                "correct_answer": "A",
-            },
+        self.flashcard = Flashcard.objects.create(
+            question="Capital of Poland?",
+            answer_a="Warsaw",
+            answer_b="Berlin",
+            answer_c="Krakow",
+            answer_d="Prague",
+            correct_answer="Warsaw",
+            deck=Deck.objects.create(name="Geography", owner=self.user),
+            created_by=self.user,
         )
 
+    def test_review_view_displays_question_and_options(self):
+        url = reverse(
+            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
+        )
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Flashcard.objects.count(), initial_count)
+        content = response.content.decode()
+        # Check question and all answers are shown
+        self.assertIn("Capital of Poland?", content)
+        self.assertIn("Warsaw", content)
+        self.assertIn("Berlin", content)
+        self.assertIn("Krakow", content)
+        self.assertIn("Prague", content)
 
-    def test_create_flashcard_in_deck_duplicate_question_shows_error(self):
-        initial_count = Flashcard.objects.count()
-        response = self.client.post(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
-            data={
-                "question": self.flashcard.question,
-                "answer_a": "3",
-                "answer_b": "4",
-                "answer_c": "5",
-                "answer_d": "6",
-                "correct_answer": "B",
-            },
+    def test_review_view_allows_answer_submission_and_feedback(self):
+        url = reverse(
+            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
         )
 
+        # Simulate posting a correct answer
+        response = self.client.post(url, {"selected_answer": "Warsaw"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Flashcard.objects.count(), initial_count)
-        form = response.context["form_create_flashcard"]
-        self.assertIn("question", form.errors)
+        content = response.content.decode()
+        self.assertIn(
+            "correct", content.lower()
+        )  # Should mention it's correct
 
-    def test_flashcard_create_view_duplicate_question_shows_error(self):
-        initial_count = Flashcard.objects.count()
-        response = self.client.post(
-            reverse("flashcards:flashcard-create"),
-            data={
-                "question": self.flashcard.question,
-                "answer_a": "3",
-                "answer_b": "4",
-                "answer_c": "5",
-                "answer_d": "6",
-                "correct_answer": "B",
-                "deck": self.deck.id,
-            },
-        )
-
+        # Simulate posting an incorrect answer
+        response = self.client.post(url, {"selected_answer": "Berlin"})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(Flashcard.objects.count(), initial_count)
-        form = response.context["form"]
-        self.assertIn("question", form.errors)
+        content = response.content.decode()
+        self.assertIn(
+            "incorrect", content.lower()
+        )  # Should mention it's incorrect

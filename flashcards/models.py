@@ -73,7 +73,7 @@ class FlashcardUserState(models.Model):
 class Review(models.Model):
     """
     # Review model: records when and how well a user reviewed a flashcard.
-    # Captures user, flashcard, deck, review quality, and review date.
+    # Captures user, flashcard, review quality, and review date.
     """
 
     class Quality(models.IntegerChoices):
@@ -90,13 +90,6 @@ class Review(models.Model):
     )
     user = models.ForeignKey(
         to=User, on_delete=models.CASCADE, related_name="reviews"
-    )
-    deck = models.ForeignKey(
-        to="Deck",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="reviews",
     )
     quality = models.IntegerField(choices=Quality.choices)
     reviewed_at = models.DateTimeField(auto_now_add=True)

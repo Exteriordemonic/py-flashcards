@@ -12,7 +12,7 @@
 /* Apply Roboto as the default font for the app */
 /* Use the 'body' selector to set Roboto as the default font, since @theme is unsupported in Tailwind v4 */
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 @plugin "daisyui" {
@@ -22,3 +22,19 @@ body {
     cupcake;
 }
 @source "../../../**/*.{html,py,js}";
+
+.radio-button {
+  input {
+    opacity: 0;
+    position: absolute;
+
+    &:checked + label:not(.btn-success) {
+      /* Optional: highlight the checked answer, visually matching .btn-primary */
+      @apply btn-primary;
+
+      &.btn-wrong {
+        @apply btn-error;
+      }
+    }
+  }
+}

@@ -8,7 +8,12 @@ from django.db import IntegrityError, transaction
 
 from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
 from flashcards.models import Deck, Flashcard
-from flashcards.forms import FlashcardDeckForm, FlashcardForm, DeckForm
+from flashcards.forms import (
+    FlashcardForm,
+    DeckForm,
+    FlashcardDeckForm,
+    FlashcardReviewForm,
+)
 
 FLASHCARD_DUPLICATE_ERROR = (
     "Flashcard with this question already exists in this deck."
@@ -74,6 +79,40 @@ class FlashcardDeleteView(
 ):
     model = Flashcard
     success_url = reverse_lazy("flashcards:flashcard-list")
+
+
+class FlashcardReviewView(
+    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView
+):
+    model = Flashcard
+    template_name = "flashcards/flashcard_review.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = FlashcardReviewForm(flashcard=self.object)
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = FlashcardReviewForm(request.POST, flashcard=self.object)
+
+        is_correct = None
+        feedback_message = ""
+        if form.is_valid():
+            selected_answer = form.cleaned_data["selected_answer"]
+            is_correct = selected_answer == self.object.correct_answer
+            feedback_message = (
+                "Correct answer!" if is_correct else "Incorrect answer."
+            )
+
+        context = self.get_context_data()
+        context["form"] = form
+        context["is_correct"] = is_correct
+        context["correct_answer"] = self.object.correct_answer
+        context["feedback_message"] = feedback_message
+
+        return self.render_to_response(context)
 
 
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
