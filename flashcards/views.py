@@ -1,3 +1,4 @@
+from django.db.models import Count, Prefetch
 from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.views import generic
@@ -24,9 +25,11 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
     model = Flashcard
 
     def get_queryset(self):
-        return Flashcard.objects.filter(
-            created_by=self.request.user
-        ).select_related("deck")
+        return (
+            Flashcard.objects.filter(created_by=self.request.user)
+            .select_related("deck")
+            .only("question", "deck_id", "deck__name")
+        )
 
 
 class FlashcardDetailView(
@@ -126,11 +129,27 @@ class FlashcardReviewView(
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     model = Deck
 
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .annotate(flashcards_count=Count("flashcards"))
+            .only("id", "name", "owner")
+        )
+
 
 class DeckDetailView(
     LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView
 ):
     model = Deck
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("flashcards")
+            .only("name", "flashcards__question")
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
