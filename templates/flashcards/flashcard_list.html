@@ -28,11 +28,11 @@
               <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}"> {{ flashcard.id }}</a></td>
               <td><a href="{% url "flashcards:flashcard-detail" pk=flashcard.id %}">{{ flashcard.question }}</a></td>
               <td>
-                {% for deck in flashcard.deck.all %}
-                  <a href="{% url 'flashcards:deck-detail' pk=deck.id %}" class="btn btn-ghost btn-xs">{{ deck.name }}</a>
-                {% empty %}
+                {% if flashcard.deck %}
+                  <a href="{% url 'flashcards:deck-detail' pk=flashcard.deck.id %}" class="btn btn-ghost btn-xs">{{ flashcard.deck.name }}</a>
+                {% else %}
                   -
-                {% endfor %}
+                {% endif %}
               </td>
     
           </tr>

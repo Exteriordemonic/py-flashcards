@@ -1,9 +1,7 @@
-from django.contrib.auth.views import login_required
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
-from django.shortcuts import redirect
 
 
 from flashcards.models import Deck, Flashcard
@@ -16,7 +14,7 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Flashcard.objects.filter(
             created_by=self.request.user
-        ).prefetch_related("deck")
+        ).select_related("deck")
 
 
 class FlashcardDetailView(LoginRequiredMixin, generic.DetailView):
@@ -29,12 +27,26 @@ class FlashcardUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     success_url = reverse_lazy("flashcards:flashcard-list")
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["deck"].queryset = Deck.objects.filter(
+            owner=self.request.user
+        )
+        return form
+
 
 class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
     model = Flashcard
     form_class = FlashcardForm
 
     success_url = reverse_lazy("flashcards:flashcard-list")
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["deck"].queryset = Deck.objects.filter(
+            owner=self.request.user
+        )
+        return form
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -50,19 +62,18 @@ class DeckListView(LoginRequiredMixin, generic.ListView):
     model = Deck
 
     def get_queryset(self):
-        return Deck.objects.filter(members=self.request.user)
+        return Deck.objects.prefetch_related("flashcards").filter(
+            owner=self.request.user
+        )
 
 
 class DeckDetailView(LoginRequiredMixin, generic.DetailView):
     model = Deck
 
     def get_context_data(self, **kwargs):
-        current_user = self.request.user
-
         context = super().get_context_data(**kwargs)
         deck = self.object
         context["is_deck_owner"] = deck.owner_id == self.request.user.pk
-        context["is_member"] = deck.members.filter(pk=current_user.pk).exists()
 
         return context
 
@@ -86,20 +97,6 @@ class DeckCreateView(LoginRequiredMixin, generic.CreateView):
 class DeckDeleteView(LoginRequiredMixin, generic.DeleteView):
     model = Deck
     success_url = reverse_lazy("flashcards:deck-list")
-
-
-@login_required
-def deck_add(request, pk):
-    current_user = request.user
-    Deck.objects.get(id=pk).members.add(current_user)
-    return redirect("flashcards:deck-detail", pk=pk)
-
-
-@login_required
-def deck_remove(request, pk):
-    current_user = request.user
-    Deck.objects.get(id=pk).members.remove(current_user)
-    return redirect("flashcards:deck-detail", pk=pk)
 
 
 class HomeView(TemplateView):
