@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "tailwind",
     "theme",
     "crispy_forms",
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 if DEBUG:
@@ -151,3 +153,9 @@ LOGIN_REDIRECT_URL = "flashcards:flashcard-list"
 LOGOUT_REDIRECT_URL = "users:login"
 
 NPM_BIN_PATH = r"C:\nvm4w\nodejs\npm.cmd"
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

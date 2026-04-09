@@ -18,7 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
+from debug_toolbar.toolbar import debug_toolbar_urls
+
+
 from flashcards.views import HomeView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,7 +35,7 @@ urlpatterns = [
         "accounts/",
         include(("users.urls", "users"), namespace="users"),
     ),
-]
+] + debug_toolbar_urls()
 
 if settings.DEBUG:
     # Include django_browser_reload URLs only in DEBUG mode
