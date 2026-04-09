@@ -94,8 +94,25 @@ class FlashcardReviewView(
         return context
 
     def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = FlashcardReviewForm(request.POST, flashcard=self.object)
 
-        return
+        is_correct = None
+        feedback_message = ""
+        if form.is_valid():
+            selected_answer = form.cleaned_data["selected_answer"]
+            is_correct = selected_answer == self.object.correct_answer
+            feedback_message = (
+                "Correct answer!" if is_correct else "Incorrect answer."
+            )
+
+        context = self.get_context_data()
+        context["form"] = form
+        context["is_correct"] = is_correct
+        context["correct_answer"] = self.object.correct_answer
+        context["feedback_message"] = feedback_message
+
+        return self.render_to_response(context)
 
 
 class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):

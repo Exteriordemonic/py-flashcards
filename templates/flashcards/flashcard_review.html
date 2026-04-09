@@ -11,7 +11,11 @@
   >
     <form method="post" class="space-y-4">
       {% csrf_token %}
-
+      {% if feedback_message %}
+      <div class="alert {% if is_correct %}alert-success{% else %}alert-error{% endif %}">
+        <span>{{ feedback_message }}</span>
+      </div>
+      {% endif %}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         {% for radio in form.selected_answer %}
         <div class="radio-button">
@@ -19,7 +23,7 @@
     
           <label
             for="{{ radio.id_for_label }}"
-            class="btn w-full justify-start"
+            class="btn w-full justify-start {% if correct_answer == radio.choice_label %}btn-success{% elif feedback_message %}btn-wrong{% endif %}"
        
           >
             {{ radio.choice_label }}

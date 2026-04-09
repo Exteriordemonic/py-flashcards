@@ -85,6 +85,8 @@ class FlashcardReviewForm(forms.Form):
                 (flashcard.answer_d, flashcard.answer_d),
             ]
 
-            random.shuffle(choices)
+            # Shuffle only on initial display (GET). Keep stable order on POST.
+            if not self.is_bound:
+                random.shuffle(choices)
 
             self.fields["selected_answer"].choices = choices
