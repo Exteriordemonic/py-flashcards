@@ -1,38 +1,66 @@
-{% extends "base.html" %}
-
-{% block header %}
-  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
-    <h1 class="text-3xl font-bold">Deck</h1>
-    <a href="{% url 'flashcards:deck-list' %}" class="btn btn-outline btn-sm">Back</a>
-  </header>
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% load crispy_forms_tags %} {% block header %}
+<header
+  class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4"
+>
+  <h1 class="text-3xl font-bold">Deck</h1>
+  <a href="{% url 'flashcards:deck-list' %}" class="btn btn-outline btn-sm"
+    >Back</a
+  >
+</header>
+{% endblock %} {% block content %}
 <div class="container mx-auto max-w-lg px-4">
   <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
     <div class="card-body">
       <div class="mb-6">
         <div class="text-lg font-semibold text-base-content/80 mb-2">Name</div>
-        <div class="text-xl font-bold text-base-content mb-6">{{ object.name }}</div>
+        <div class="text-xl font-bold text-base-content mb-6">
+          {{ object.name }}
+        </div>
         <div class="divider"></div>
-        <div class="text-lg font-semibold text-base-content/80 mb-2">Flashcards</div>
+        <div class="text-lg font-semibold text-base-content/80 mb-2">
+          Flashcards
+        </div>
         <div class="text-base-content mb-4">
-        <ul class="list-disc pl-6 space-y-2">
-          {% for flashcard in flashcards %}
+          <ul class="list-disc pl-6 space-y-2">
+            {% for flashcard in flashcards %}
             <li>
-              <a href="{% url 'flashcards:flashcard-detail' pk=flashcard.id %}" class="link link-hover text-base-content">
+              <a
+                href="{% url 'flashcards:flashcard-detail' pk=flashcard.id %}"
+                class="link link-hover text-base-content"
+              >
                 {{ flashcard.question }}
               </a>
             </li>
-          {% empty %}
-            <li class="text-base-content/60 italic">No flashcards in this deck.</li>
-          {% endfor %}
-        </ul>
+            {% empty %}
+            <li class="text-base-content/60 italic">
+              No flashcards in this deck.
+            </li>
+            {% endfor %}
+          </ul>
         </div>
       </div>
+      <div class="mb-8 p-4 bg-gray-100">
+        <div class="text-lg font-semibold mb-4">Create Flashcard</div>
+        <form method="post" class="flex flex-col gap-6">
+          {% csrf_token %}
+          {{ form_create_flashcard|crispy }}
+          <div class="flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Add</button>
+          </div>
+        </form>
+      </div>
+
       <div class="flex gap-2">
-        <a href="{% url 'flashcards:deck-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>
-        <a href="{% url 'flashcards:deck-delete' pk=object.id %}" class="btn btn-error btn-sm">Delete</a>
+        <a
+          href="{% url 'flashcards:deck-update' pk=object.id %}"
+          class="btn btn-primary btn-sm"
+          >Update</a
+        >
+        <a
+          href="{% url 'flashcards:deck-delete' pk=object.id %}"
+          class="btn btn-error btn-sm"
+          >Delete</a
+        >
       </div>
     </div>
   </div>

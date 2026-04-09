@@ -47,6 +47,19 @@ class FlashcardForm(forms.ModelForm):
         ]
 
 
+class FlashcardDeckForm(FlashcardForm):
+    class Meta:
+        model = Flashcard
+        fields = [
+            "question",
+            "answer_a",
+            "answer_b",
+            "answer_c",
+            "answer_d",
+            "correct_answer",
+        ]
+
+
 class DeckForm(forms.ModelForm):
     class Meta:
         model = Deck
