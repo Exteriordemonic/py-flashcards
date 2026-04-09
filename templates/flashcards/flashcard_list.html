@@ -19,6 +19,7 @@
             <th></th>
             <th>Question</th>
             <th>Deck</th>
+            <th>Action</th>
           </tr>
         </thead>
         <!-- body -->
@@ -34,7 +35,11 @@
                   -
                 {% endif %}
               </td>
-    
+              <td>
+                <a href="{% url 'flashcards:flashcard-review' pk=flashcard.id %}" class="btn btn-secondary btn-xs">
+                  Review
+                </a>
+              </td>
           </tr>
           {% endfor %}
         </tbody>
