@@ -3,11 +3,16 @@ from django.shortcuts import redirect
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
+from django.db import IntegrityError, transaction
 
 
 from flashcards.mixins import CreatedByQuerysetMixin, OwnerQuerysetMixin
 from flashcards.models import Deck, Flashcard
 from flashcards.forms import FlashcardDeckForm, FlashcardForm, DeckForm
+
+FLASHCARD_DUPLICATE_ERROR = (
+    "Flashcard with this question already exists in this deck."
+)
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -56,7 +61,12 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
-        return super().form_valid(form)
+        try:
+            with transaction.atomic():
+                return super().form_valid(form)
+        except IntegrityError:
+            form.add_error("question", FLASHCARD_DUPLICATE_ERROR)
+            return self.form_invalid(form)
 
 
 class FlashcardDeleteView(
@@ -97,7 +107,13 @@ class DeckDetailView(
             flashcard = form.save(commit=False)
             flashcard.deck = self.object
             flashcard.created_by = request.user
-            flashcard.save()
+            try:
+                with transaction.atomic():
+                    flashcard.save()
+            except IntegrityError:
+                form.add_error("question", FLASHCARD_DUPLICATE_ERROR)
+                context = self.get_context_data(form_create_flashcard=form)
+                return self.render_to_response(context)
 
             return redirect("flashcards:deck-detail", pk=self.object.pk)
 

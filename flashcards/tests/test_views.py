@@ -239,3 +239,42 @@ class FlashcardAndDeckViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Flashcard.objects.count(), initial_count)
+
+    def test_create_flashcard_in_deck_duplicate_question_shows_error(self):
+        initial_count = Flashcard.objects.count()
+        response = self.client.post(
+            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id}),
+            data={
+                "question": self.flashcard.question,
+                "answer_a": "3",
+                "answer_b": "4",
+                "answer_c": "5",
+                "answer_d": "6",
+                "correct_answer": "B",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Flashcard.objects.count(), initial_count)
+        form = response.context["form_create_flashcard"]
+        self.assertIn("question", form.errors)
+
+    def test_flashcard_create_view_duplicate_question_shows_error(self):
+        initial_count = Flashcard.objects.count()
+        response = self.client.post(
+            reverse("flashcards:flashcard-create"),
+            data={
+                "question": self.flashcard.question,
+                "answer_a": "3",
+                "answer_b": "4",
+                "answer_c": "5",
+                "answer_d": "6",
+                "correct_answer": "B",
+                "deck": self.deck.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Flashcard.objects.count(), initial_count)
+        form = response.context["form"]
+        self.assertIn("question", form.errors)

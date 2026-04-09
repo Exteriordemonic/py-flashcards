@@ -33,6 +33,14 @@ class Flashcard(models.Model):
         blank=True,
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["question", "created_by", "deck"],
+                name="unique_flashcard_created_by_question_deck",
+            )
+        ]
+
 
 class FlashcardUserState(models.Model):
     """
