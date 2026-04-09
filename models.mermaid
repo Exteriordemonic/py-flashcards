@@ -3,11 +3,10 @@ erDiagram
     USER ||--o{ REVIEW : "reviews"
     USER ||--o{ FLASHCARD_USER_STATE : "tracks"
     USER ||--o{ DECK : "owns"
-    USER }o--o{ DECK : "members"
 
+    DECK ||--o{ FLASHCARD : "contains"
     FLASHCARD ||--o{ REVIEW : "reviewed_in"
     FLASHCARD ||--o{ FLASHCARD_USER_STATE : "state_for"
-    FLASHCARD }o--o{ DECK : "in_decks"
 
     DECK ||--o{ REVIEW : "review_context (nullable)"
 
@@ -33,6 +32,7 @@ erDiagram
         string correct_answer
         datetime created_at
         datetime updated_at
+        int deck_id FK
         int created_by_id FK nullable
     }
 
@@ -57,4 +57,3 @@ erDiagram
 %% Review.quality: IntegerChoices — 1 Hard, 2 Normal, 3 Easy, 4 Very Easy, 5 Perfect
 %% UniqueConstraint FLASHCARD_USER_STATE (flashcard_id, user_id) name unique_flashcard_user_state
 %% UniqueConstraint DECK (name, owner_id) name unique_deck_user_name
-%% Deck.save ensures owner is in members M2M

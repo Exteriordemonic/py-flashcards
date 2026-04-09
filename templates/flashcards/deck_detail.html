@@ -34,12 +34,6 @@
         {% if is_deck_owner %}
             <a href="{% url 'flashcards:deck-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>
             <a href="{% url 'flashcards:deck-delete' pk=object.id %}" class="btn btn-error btn-sm">Delete</a>
-        {% else %}
-            {% if is_member %}
-            <a href="{% url 'flashcards:deck-remove' pk=object.id %}" class="btn btn-primary btn-sm">Remove</a>
-            {% else %}
-            <a href="{% url 'flashcards:deck-add' pk=object.id %}" class="btn btn-primary btn-sm">Add</a>
-            {% endif %}
         {% endif %}
       </div>
     </div>

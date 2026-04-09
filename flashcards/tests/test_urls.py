@@ -15,6 +15,7 @@ class TestUrls(TestCase):
         self.client.login(username="testuser", password="testpassword")
 
     def create_flashcard(self):
+        deck = self.create_deck()
         return Flashcard.objects.create(
             question="Jaka jest stolica Polski?",
             answer_a="Gdańsk",
@@ -22,6 +23,7 @@ class TestUrls(TestCase):
             answer_c="Warszawa",
             answer_d="Wrocław",
             correct_answer="Warszawa",
+            deck=deck,
             created_by=self.user,
         )
 
@@ -107,7 +109,7 @@ class TestUrls(TestCase):
     def test_not_logged_in_access(self):
         self.client.logout()
         flashcard = self.create_flashcard()
-        deck = self.create_deck()
+        deck = flashcard.deck
         urls = [
             reverse("flashcards:flashcard-list"),
             reverse("flashcards:flashcard-create"),
