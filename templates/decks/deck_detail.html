@@ -3,7 +3,7 @@
   class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4"
 >
   <h1 class="text-3xl font-bold">Deck</h1>
-  <a href="{% url 'flashcards:deck-list' %}" class="btn btn-outline btn-sm"
+  <a href="{% url 'decks:deck-list' %}" class="btn btn-outline btn-sm"
     >Back</a
   >
 </header>
@@ -52,12 +52,12 @@
 
       <div class="flex gap-2">
         <a
-          href="{% url 'flashcards:deck-update' pk=object.id %}"
+          href="{% url 'decks:deck-update' pk=object.id %}"
           class="btn btn-primary btn-sm"
           >Update</a
         >
         <a
-          href="{% url 'flashcards:deck-delete' pk=object.id %}"
+          href="{% url 'decks:deck-delete' pk=object.id %}"
           class="btn btn-error btn-sm"
           >Delete</a
         >

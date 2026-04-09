@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from flashcards.models import Deck, Flashcard, Review
+from decks.models import Deck
+from flashcards.models import Flashcard, Review
 
 User = get_user_model()
 
@@ -75,7 +76,7 @@ class FlashcardAndDeckViewsTests(TestCase):
 
     def test_deck_create_view_creates_object(self):
         response = self.client.post(
-            reverse("flashcards:deck-create"),
+            reverse("decks:deck-create"),
             data={
                 "name": "Geography",
                 "owner": self.user.id,
@@ -87,7 +88,7 @@ class FlashcardAndDeckViewsTests(TestCase):
 
     def test_deck_delete_view_deletes_object(self):
         response = self.client.post(
-            reverse("flashcards:deck-delete", kwargs={"pk": self.deck.id})
+            reverse("decks:deck-delete", kwargs={"pk": self.deck.id})
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Deck.objects.filter(id=self.deck.id).exists())
@@ -133,7 +134,7 @@ class FlashcardAndDeckViewsTests(TestCase):
         self.client.login(username="view_user2", password="secret123")
 
         response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+            reverse("decks:deck-detail", kwargs={"pk": self.deck.id})
         )
         self.assertEqual(response.status_code, 404)
 
@@ -150,7 +151,7 @@ class FlashcardAndDeckViewsTests(TestCase):
         )
 
         response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": self.deck.id})
+            reverse("decks:deck-detail", kwargs={"pk": self.deck.id})
         )
         # Ensure user is owner to view flashcards in deck;
         # user2 flashcard should NOT appear

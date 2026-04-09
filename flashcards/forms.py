@@ -1,6 +1,8 @@
-from django import forms
-from flashcards.models import Flashcard, Deck
 import random
+
+from django import forms
+
+from flashcards.models import Flashcard
 
 
 class FlashcardForm(forms.ModelForm):
@@ -57,14 +59,6 @@ class FlashcardDeckForm(FlashcardForm):
             "answer_c",
             "answer_d",
             "correct_answer",
-        ]
-
-
-class DeckForm(forms.ModelForm):
-    class Meta:
-        model = Deck
-        fields = [
-            "name",
         ]
 
 

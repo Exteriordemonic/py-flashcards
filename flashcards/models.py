@@ -21,7 +21,7 @@ class Flashcard(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deck = models.ForeignKey(
-        to="Deck",
+        to="decks.Deck",
         on_delete=models.CASCADE,
         related_name="flashcards",
     )
@@ -96,21 +96,3 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-
-class Deck(models.Model):
-    name = models.CharField(max_length=255)
-    owner = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, related_name="decks"
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["name", "owner"],
-                name="unique_deck_user_name",
-            )
-        ]

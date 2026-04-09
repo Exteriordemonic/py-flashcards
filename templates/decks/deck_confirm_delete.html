@@ -3,7 +3,7 @@
 {% block header %}
   <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
     <h1 class="text-3xl font-bold">Delete Deck</h1>
-    <a href="{% url 'flashcards:deck-detail' pk=object.pk %}" class="btn btn-outline btn-sm">Back</a>
+    <a href="{% url 'decks:deck-detail' pk=object.pk %}" class="btn btn-outline btn-sm">Back</a>
   </header>
 {% endblock %}
 
@@ -22,7 +22,7 @@
         {% csrf_token %}
         <div class="flex flex-wrap gap-2">
           <button type="submit" class="btn btn-error">Yes, delete</button>
-          <a href="{% url 'flashcards:deck-detail' pk=object.pk %}" class="btn btn-outline">Cancel</a>
+          <a href="{% url 'decks:deck-detail' pk=object.pk %}" class="btn btn-outline">Cancel</a>
         </div>
       </form>
     </div>

@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from flashcards.forms import FlashcardReviewForm
-from flashcards.models import Flashcard, Deck
+from decks.models import Deck
+from flashcards.models import Flashcard
 
 User = get_user_model()
 

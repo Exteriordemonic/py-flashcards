@@ -28,6 +28,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", HomeView.as_view(), name="home"),
     path(
+        "decks/",
+        include(("decks.urls", "decks"), namespace="decks"),
+    ),
+    path(
         "flashcards/",
         include(("flashcards.urls", "flashcards"), namespace="flashcards"),
     ),

@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from flashcards.models import Deck, Flashcard
+from decks.models import Deck
+from flashcards.models import Flashcard
 
 
 User = get_user_model()
@@ -74,26 +75,26 @@ class TestUrls(TestCase):
         )
 
     def test_deck_list_is_resolved(self):
-        response = self.client.get(reverse("flashcards:deck-list"))
+        response = self.client.get(reverse("decks:deck-list"))
         self.assertEqual(response.status_code, 200)
 
     def test_deck_detail_is_resolved(self):
         deck = self.create_deck()
 
         response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": deck.id})
+            reverse("decks:deck-detail", kwargs={"pk": deck.id})
         )
         self.assertEqual(response.status_code, 200)
 
     def test_deck_create_is_resolved(self):
-        response = self.client.get(reverse("flashcards:deck-create"))
+        response = self.client.get(reverse("decks:deck-create"))
         self.assertEqual(response.status_code, 200)
 
     def test_deck_update_is_resolved(self):
         deck = self.create_deck()
 
         response = self.client.get(
-            reverse("flashcards:deck-update", kwargs={"pk": deck.id})
+            reverse("decks:deck-update", kwargs={"pk": deck.id})
         )
         self.assertEqual(
             response.status_code,
@@ -104,7 +105,7 @@ class TestUrls(TestCase):
         deck = self.create_deck()
 
         response = self.client.get(
-            reverse("flashcards:deck-delete", kwargs={"pk": deck.id})
+            reverse("decks:deck-delete", kwargs={"pk": deck.id})
         )
         self.assertEqual(
             response.status_code,
@@ -127,11 +128,11 @@ class TestUrls(TestCase):
             reverse(
                 "flashcards:flashcard-delete", kwargs={"pk": flashcard.id}
             ),
-            reverse("flashcards:deck-list"),
-            reverse("flashcards:deck-create"),
-            reverse("flashcards:deck-detail", kwargs={"pk": deck.id}),
-            reverse("flashcards:deck-update", kwargs={"pk": deck.id}),
-            reverse("flashcards:deck-delete", kwargs={"pk": deck.id}),
+            reverse("decks:deck-list"),
+            reverse("decks:deck-create"),
+            reverse("decks:deck-detail", kwargs={"pk": deck.id}),
+            reverse("decks:deck-update", kwargs={"pk": deck.id}),
+            reverse("decks:deck-delete", kwargs={"pk": deck.id}),
         ]
 
         for url in urls:
@@ -143,7 +144,7 @@ class TestUrls(TestCase):
 
         self.client.login(username="testuser2", password="testpassword2")
         response = self.client.get(
-            reverse("flashcards:deck-detail", kwargs={"pk": deck.id})
+            reverse("decks:deck-detail", kwargs={"pk": deck.id})
         )
 
         self.assertEqual(response.status_code, 404)
@@ -153,7 +154,7 @@ class TestUrls(TestCase):
 
         self.client.login(username="testuser2", password="testpassword2")
         response = self.client.get(
-            reverse("flashcards:deck-delete", kwargs={"pk": deck.id})
+            reverse("decks:deck-delete", kwargs={"pk": deck.id})
         )
 
         self.assertEqual(response.status_code, 404)
@@ -163,7 +164,7 @@ class TestUrls(TestCase):
 
         self.client.login(username="testuser2", password="testpassword2")
         response = self.client.get(
-            reverse("flashcards:deck-update", kwargs={"pk": deck.id})
+            reverse("decks:deck-update", kwargs={"pk": deck.id})
         )
 
         self.assertEqual(response.status_code, 404)
