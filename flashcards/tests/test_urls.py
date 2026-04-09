@@ -146,7 +146,7 @@ class TestUrls(TestCase):
             reverse("flashcards:deck-detail", kwargs={"pk": deck.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
 
     def test_redirect_if_user_tries_to_delete_not_owned_deck(self):
         deck = self.create_deck()
@@ -156,7 +156,7 @@ class TestUrls(TestCase):
             reverse("flashcards:deck-delete", kwargs={"pk": deck.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
 
     def test_redirect_if_user_tries_to_update_not_owned_deck(self):
         deck = self.create_deck()
@@ -166,7 +166,7 @@ class TestUrls(TestCase):
             reverse("flashcards:deck-update", kwargs={"pk": deck.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
 
     def test_redirect_if_user_tries_to_view_not_owned_flashcard(self):
         flashcard = self.create_flashcard()
@@ -176,7 +176,7 @@ class TestUrls(TestCase):
             reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
 
     def test_redirect_if_user_tries_to_update_not_owned_flashcard(self):
         flashcard = self.create_flashcard()
@@ -186,7 +186,7 @@ class TestUrls(TestCase):
             reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)
 
     def test_redirect_if_user_tries_to_delete_not_owned_flashcard(self):
         flashcard = self.create_flashcard()
@@ -196,4 +196,4 @@ class TestUrls(TestCase):
             reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
         )
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 404)

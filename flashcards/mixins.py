@@ -1,20 +1,20 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.shortcuts import redirect
+class OwnerQuerysetMixin:
+    """
+    Mixin for filtering querysets by the current request user as 'owner'.
+    Use by placing this mixin before your Django generic view class.
+    """
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(owner=self.request.user)
 
 
-class OwnerRequiredMixin(UserPassesTestMixin):
-    def test_func(self):
-        obj = self.get_object()
-        return obj.owner == self.request.user
+class CreatedByQuerysetMixin:
+    """
+    Mixin for filtering querysets by the current request user as 'created_by'.
+    Use by placing this mixin before your Django generic view class.
+    """
 
-    def handle_no_permission(self):
-        return redirect("flashcards:deck-list")
-
-
-class CreatedByRequiredMixin(UserPassesTestMixin):
-    def test_func(self):
-        obj = self.get_object()
-        return obj.created_by == self.request.user
-
-    def handle_no_permission(self):
-        return redirect("flashcards:deck-list")
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(created_by=self.request.user)
