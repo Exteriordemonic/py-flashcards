@@ -62,12 +62,10 @@ class FlashcardReviewForm(forms.Form):
     def __init__(self, *args, flashcard=None, **kwargs):
         super().__init__(*args, **kwargs)
         if flashcard:
-            choices = [
-                (flashcard.answer_a, flashcard.answer_a),
-                (flashcard.answer_b, flashcard.answer_b),
-                (flashcard.answer_c, flashcard.answer_c),
-                (flashcard.answer_d, flashcard.answer_d),
-            ]
+            texts = list(
+                flashcard.answers.order_by("pk").values_list("text", flat=True)
+            )
+            choices = [(t, t) for t in texts]
 
             # Shuffle only on initial display (GET). Keep stable order on POST.
             if not self.is_bound:
