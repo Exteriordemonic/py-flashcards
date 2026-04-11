@@ -5,7 +5,8 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
 from decks.models import Deck
-from flashcards.models import Flashcard, FlashcardUserState
+from flashcards.models import Answer, Flashcard, FlashcardUserState
+from flashcards.services import AnswerInput, FlashcardService
 
 User = get_user_model()
 
@@ -87,3 +88,27 @@ def test_flashcard_unique_per_question_created_by_and_deck(user, deck):
             deck=deck,
             created_by=user,
         )
+
+
+def test_answer_defaults_and_links_to_flashcard(flashcard):
+    answer = Answer.objects.create(flashcard=flashcard, text="Option A")
+
+    assert answer.is_correct is False
+    assert list(flashcard.answers.values_list("text", flat=True)) == ["Option A"]
+
+
+def test_answers_deleted_when_flashcard_deleted(user, deck):
+    flashcard = FlashcardService.create_flashcard(
+        question="Cascade test",
+        created_by=user,
+        deck=deck,
+        answers=[
+            AnswerInput(text="Yes", is_correct=True),
+            AnswerInput(text="No"),
+        ],
+    )
+    answer_ids = set(flashcard.answers.values_list("pk", flat=True))
+
+    flashcard.delete()
+
+    assert Answer.objects.filter(pk__in=answer_ids).count() == 0

@@ -149,10 +149,10 @@ def test_multiple_correct_answers(flashcard_create_data):
     assert flashcard.answers.filter(is_correct=True).count() == correct_answers
 
 
-def test_no_flashcard_created_when_answers_invalid(flashcard_create_data):
+def test_no_flashcard_created_when_answers_none(flashcard_create_data):
     data = {**flashcard_create_data, "answers": None}
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError, match="Answers are required"):
         FlashcardService.create_flashcard(**data)
 
     assert Flashcard.objects.count() == 0

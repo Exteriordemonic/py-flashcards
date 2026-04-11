@@ -31,6 +31,9 @@ class FlashcardDetailView(
 ):
     model = Flashcard
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("answers")
+
 
 class FlashcardUpdateView(
     LoginRequiredMixin, CreatedByQuerysetMixin, generic.UpdateView
@@ -84,9 +87,17 @@ class FlashcardReviewView(
     model = Flashcard
     template_name = "flashcards/flashcard_review.html"
 
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("answers")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = FlashcardReviewForm(flashcard=self.object)
+        context["correct_answer_texts"] = list(
+            self.object.answers.filter(is_correct=True).values_list(
+                "text", flat=True
+            )
+        )
 
         return context
 
@@ -98,24 +109,34 @@ class FlashcardReviewView(
         feedback_message = ""
         if form.is_valid():
             selected_answer = form.cleaned_data["selected_answer"]
-            is_correct = selected_answer == self.object.correct_answer
+            is_correct = self.object.answers.filter(
+                text=selected_answer, is_correct=True
+            ).exists()
             feedback_message = (
                 "Correct answer!" if is_correct else "Incorrect answer."
             )
 
+            Review.objects.create(
+                flashcard=self.object,
+                user=self.request.user,
+                quality=(
+                    Review.Quality.PERFECT
+                    if is_correct
+                    else Review.Quality.HARD
+                ),
+            )
+
+        correct_answer_texts = list(
+            self.object.answers.filter(is_correct=True).values_list(
+                "text", flat=True
+            )
+        )
+
         context = self.get_context_data()
         context["form"] = form
         context["is_correct"] = is_correct
-        context["correct_answer"] = self.object.correct_answer
+        context["correct_answer_texts"] = correct_answer_texts
         context["feedback_message"] = feedback_message
-
-        Review.objects.create(
-            flashcard=self.object,
-            user=self.request.user,
-            quality=(
-                Review.Quality.PERFECT if is_correct else Review.Quality.HARD
-            ),
-        )
 
         return self.render_to_response(context)
 
