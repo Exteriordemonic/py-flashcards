@@ -6,18 +6,23 @@ User = get_user_model()
 
 class Flashcard(models.Model):
     """
-    # Flashcard model with fields for question, answers (A-D),
-    # and the correct answer.
-    # The 'created_by' field can be null if the user deletes their account,
-    # but the flashcard remains available for other users.
+    Example of how to create a Flashcard object:
+        Flashcard.objects.create(
+            question="Question text",
+            deck=deck,
+            created_by=user
+        )
+
+    Fields:
+        question : str — the flashcard question (required)
+        deck : Deck — the deck to which this flashcard belongs (required)
+        created_by : User — the user who created this flashcard (optional)
+
+    Note: The combination of question, created_by,
+    and deck must be unique per flashcard.
     """
 
     question = models.CharField(max_length=255)
-    answer_a = models.CharField(max_length=255)
-    answer_b = models.CharField(max_length=255)
-    answer_c = models.CharField(max_length=255)
-    answer_d = models.CharField(max_length=255)
-    correct_answer = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deck = models.ForeignKey(
@@ -96,3 +101,11 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+
+class Answer(models.Model):
+    flashcard = models.ForeignKey(
+        Flashcard, on_delete=models.CASCADE, related_name="answers"
+    )
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)

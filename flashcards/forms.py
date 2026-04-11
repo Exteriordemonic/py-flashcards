@@ -40,11 +40,6 @@ class FlashcardForm(forms.ModelForm):
         model = Flashcard
         fields = [
             "question",
-            "answer_a",
-            "answer_b",
-            "answer_c",
-            "answer_d",
-            "correct_answer",
             "deck",
         ]
 
@@ -54,11 +49,6 @@ class FlashcardDeckForm(FlashcardForm):
         model = Flashcard
         fields = [
             "question",
-            "answer_a",
-            "answer_b",
-            "answer_c",
-            "answer_d",
-            "correct_answer",
         ]
 
 
