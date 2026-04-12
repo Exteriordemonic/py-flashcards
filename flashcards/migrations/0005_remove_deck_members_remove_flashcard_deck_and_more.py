@@ -25,13 +25,9 @@ def copy_m2m_decks_to_fk(apps, schema_editor):
             owner_id = fallback_user.id
 
         if owner_id is None:
-            raise RuntimeError(
-                "Cannot migrate flashcard without deck: no owner user exists."
-            )
+            raise RuntimeError("Cannot migrate flashcard without deck: no owner user exists.")
 
-        fallback_deck, _ = Deck.objects.get_or_create(
-            name="Migrated Deck", owner_id=owner_id
-        )
+        fallback_deck, _ = Deck.objects.get_or_create(name="Migrated Deck", owner_id=owner_id)
         flashcard.deck_fk_id = fallback_deck.id
         flashcard.save(update_fields=["deck_fk"])
 
@@ -43,35 +39,33 @@ def reverse_copy_m2m_decks_to_fk(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flashcards', '0004_alter_flashcard_deck'),
+        ("flashcards", "0004_alter_flashcard_deck"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='deck',
-            name='members',
+            model_name="deck",
+            name="members",
         ),
         migrations.AddField(
-            model_name='flashcard',
-            name='deck_fk',
+            model_name="flashcard",
+            name="deck_fk",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='flashcards',
-                to='flashcards.deck',
+                related_name="flashcards",
+                to="flashcards.deck",
             ),
         ),
-        migrations.RunPython(
-            copy_m2m_decks_to_fk, reverse_copy_m2m_decks_to_fk
-        ),
+        migrations.RunPython(copy_m2m_decks_to_fk, reverse_copy_m2m_decks_to_fk),
         migrations.RemoveField(
-            model_name='flashcard',
-            name='deck',
+            model_name="flashcard",
+            name="deck",
         ),
         migrations.RenameField(
-            model_name='flashcard',
-            old_name='deck_fk',
-            new_name='deck',
+            model_name="flashcard",
+            old_name="deck_fk",
+            new_name="deck",
         ),
     ]

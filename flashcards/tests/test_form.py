@@ -1,75 +1,94 @@
-from django.test import TestCase
+from collections import Counter
+
+import pytest
 from django.contrib.auth import get_user_model
-from flashcards.forms import FlashcardReviewForm
+
 from decks.models import Deck
-from flashcards.models import Flashcard
+from flashcards.forms import FlashcardReviewForm
+from flashcards.services import AnswerInput, FlashcardService
 
 User = get_user_model()
 
+pytestmark = pytest.mark.django_db
 
-class FlashcardReviewFormTest(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="form_user",
-            password="secret123",
-        )
-        self.client.login(username="form_user", password="secret123")
-        self.deck = Deck.objects.create(name="Test Deck", owner=self.user)
-        self.flashcard = Flashcard.objects.create(
-            question="Test question",
-            answer_a="A",
-            answer_b="B",
-            answer_c="C",
-            answer_d="D",
-            correct_answer="A",
-            deck=self.deck,
-            created_by=self.user,
-        )
+_FORM_ANSWER_TEXTS = ("A", "B", "C", "D")
 
-    def test_form_sets_choices_from_flashcard(self):
-        form = FlashcardReviewForm(flashcard=self.flashcard)
 
-        choices = form.fields["selected_answer"].choices
+@pytest.fixture
+def form_user(db):
+    return User.objects.create_user(
+        username="form_user",
+        password="secret123",
+    )
 
-        self.assertEqual(len(choices), 4)
-        self.assertIn(
-            (self.flashcard.answer_a, self.flashcard.answer_a), choices
-        )
-        self.assertIn(
-            (self.flashcard.answer_b, self.flashcard.answer_b), choices
-        )
 
-    def test_shuffle_only_on_get(self):
-        form1 = FlashcardReviewForm(flashcard=self.flashcard)
-        form2 = FlashcardReviewForm(flashcard=self.flashcard)
+@pytest.fixture
+def form_deck(form_user):
+    return Deck.objects.create(name="Test Deck", owner=form_user)
 
-        choices1 = form1.fields["selected_answer"].choices
-        choices2 = form2.fields["selected_answer"].choices
 
-        self.assertCountEqual(choices1, choices2)
+@pytest.fixture
+def form_flashcard(form_user, form_deck):
+    first, *rest = _FORM_ANSWER_TEXTS
+    return FlashcardService.create_flashcard(
+        question="Test question",
+        created_by=form_user,
+        deck=form_deck,
+        answers=[
+            AnswerInput(text=first, is_correct=True),
+            *[AnswerInput(text=t) for t in rest],
+        ],
+    )
 
-    def test_no_shuffle_on_post(self):
-        data = {"selected_answer": self.flashcard.answer_a}
 
-        form1 = FlashcardReviewForm(data=data, flashcard=self.flashcard)
-        form2 = FlashcardReviewForm(data=data, flashcard=self.flashcard)
+def test_form_sets_choices_from_flashcard(form_flashcard):
+    form = FlashcardReviewForm(flashcard=form_flashcard)
 
-        choices1 = form1.fields["selected_answer"].choices
-        choices2 = form2.fields["selected_answer"].choices
+    choices = form.fields["selected_answer"].choices
 
-        self.assertEqual(choices1, choices2)
+    assert len(choices) == 4
+    assert (_FORM_ANSWER_TEXTS[0], _FORM_ANSWER_TEXTS[0]) in choices
+    assert (_FORM_ANSWER_TEXTS[1], _FORM_ANSWER_TEXTS[1]) in choices
 
-    def test_valid_form(self):
-        data = {"selected_answer": self.flashcard.answer_a}
 
-        form = FlashcardReviewForm(data=data, flashcard=self.flashcard)
+def test_shuffle_only_on_get(form_flashcard):
+    form1 = FlashcardReviewForm(flashcard=form_flashcard)
+    form2 = FlashcardReviewForm(flashcard=form_flashcard)
 
-        self.assertTrue(form.is_valid())
+    choices1 = form1.fields["selected_answer"].choices
+    choices2 = form2.fields["selected_answer"].choices
 
-    def test_invalid_choice(self):
-        data = {"selected_answer": "WRONG"}
+    assert Counter(choices1) == Counter(choices2)
 
-        form = FlashcardReviewForm(data=data, flashcard=self.flashcard)
 
-        self.assertFalse(form.is_valid())
-        self.assertIn("selected_answer", form.errors)
+def test_no_shuffle_on_post(form_flashcard):
+    data = {"selected_answer": _FORM_ANSWER_TEXTS[0]}
+
+    form1 = FlashcardReviewForm(data=data, flashcard=form_flashcard)
+    form2 = FlashcardReviewForm(data=data, flashcard=form_flashcard)
+
+    choices1 = form1.fields["selected_answer"].choices
+    choices2 = form2.fields["selected_answer"].choices
+
+    assert choices1 == choices2
+
+
+def test_valid_form(form_flashcard):
+    data = {"selected_answer": _FORM_ANSWER_TEXTS[0]}
+
+    form = FlashcardReviewForm(data=data, flashcard=form_flashcard)
+
+    assert form.is_valid()
+
+
+def test_invalid_choice(form_flashcard):
+    data = {"selected_answer": "WRONG"}
+
+    form = FlashcardReviewForm(data=data, flashcard=form_flashcard)
+
+    assert not form.is_valid()
+    assert "selected_answer" in form.errors
+
+
+def test_create_flashcard_from():
+    pass

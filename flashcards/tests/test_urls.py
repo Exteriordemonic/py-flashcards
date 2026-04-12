@@ -1,220 +1,179 @@
-from django.test import TestCase
-from django.urls import reverse
+import pytest
 from django.contrib.auth import get_user_model
-from decks.models import Deck
-from flashcards.models import Flashcard
+from django.urls import reverse
 
+from decks.models import Deck
+
+from flashcards.tests.helpers import make_flashcard_with_answers
 
 User = get_user_model()
 
 
-class TestUrls(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="testuser", password="testpassword"
-        )
+@pytest.fixture
+def user(db):
+    return User.objects.create_user(username="testuser", password="testpassword")
 
-        self.user2 = User.objects.create_user(
-            username="testuser2", password="testpassword2"
-        )
 
-        self.client.login(username="testuser", password="testpassword")
+@pytest.fixture
+def user2(db):
+    return User.objects.create_user(username="testuser2", password="testpassword2")
 
-    def create_flashcard(self):
-        deck = self.create_deck()
-        return Flashcard.objects.create(
-            question="Jaka jest stolica Polski?",
-            answer_a="Gdańsk",
-            answer_b="Kraków",
-            answer_c="Warszawa",
-            answer_d="Wrocław",
-            correct_answer="Warszawa",
-            deck=deck,
-            created_by=self.user,
-        )
 
-    def create_deck(self):
-        return Deck.objects.create(name="Example Deck 1", owner=self.user)
+@pytest.fixture
+def client_as_user(client, user):
+    client.force_login(user)
+    return client
 
-    def test_flashcard_list_is_resolved(self):
-        response = self.client.get(reverse("flashcards:flashcard-list"))
-        self.assertEqual(response.status_code, 200)
 
-    def test_flashcard_detail_is_resolved(self):
-        flashcard = self.create_flashcard()
+def test_flashcard_list_is_resolved(client_as_user):
+    response = client_as_user.get(reverse("flashcards:flashcard-list"))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
-        )
-        self.assertEqual(response.status_code, 200)
 
-    def test_flashcard_create_is_resolved(self):
-        response = self.client.get(reverse("flashcards:flashcard-create"))
-        self.assertEqual(response.status_code, 200)
+def test_flashcard_detail_is_resolved(client_as_user, user):
+    flashcard = make_flashcard_with_answers(user)
 
-    def test_flashcard_update_is_resolved(self):
-        flashcard = self.create_flashcard()
+    response = client_as_user.get(reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id}))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
-        )
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
 
-    def test_flashcard_delete_is_resolved(self):
-        flashcard = self.create_flashcard()
+def test_flashcard_create_is_resolved(client_as_user):
+    response = client_as_user.get(reverse("flashcards:flashcard-create"))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
-        )
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
 
-    def test_deck_list_is_resolved(self):
-        response = self.client.get(reverse("decks:deck-list"))
-        self.assertEqual(response.status_code, 200)
+def test_flashcard_update_is_resolved(client_as_user, user):
+    flashcard = make_flashcard_with_answers(user)
 
-    def test_deck_detail_is_resolved(self):
-        deck = self.create_deck()
+    response = client_as_user.get(reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id}))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("decks:deck-detail", kwargs={"pk": deck.id})
-        )
-        self.assertEqual(response.status_code, 200)
 
-    def test_deck_create_is_resolved(self):
-        response = self.client.get(reverse("decks:deck-create"))
-        self.assertEqual(response.status_code, 200)
+def test_flashcard_delete_is_resolved(client_as_user, user):
+    flashcard = make_flashcard_with_answers(user)
 
-    def test_deck_update_is_resolved(self):
-        deck = self.create_deck()
+    response = client_as_user.get(reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id}))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("decks:deck-update", kwargs={"pk": deck.id})
-        )
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
 
-    def test_deck_delete_is_resolved(self):
-        deck = self.create_deck()
+def test_deck_list_is_resolved(client_as_user):
+    response = client_as_user.get(reverse("decks:deck-list"))
+    assert response.status_code == 200
 
-        response = self.client.get(
-            reverse("decks:deck-delete", kwargs={"pk": deck.id})
-        )
-        self.assertEqual(
-            response.status_code,
-            200,
-        )
 
-    def test_not_logged_in_access(self):
-        self.client.logout()
-        flashcard = self.create_flashcard()
-        deck = flashcard.deck
-        urls = [
-            reverse("flashcards:flashcard-list"),
-            reverse("flashcards:flashcard-create"),
-            reverse(
-                "flashcards:flashcard-detail", kwargs={"pk": flashcard.id}
-            ),
-            reverse(
-                "flashcards:flashcard-update", kwargs={"pk": flashcard.id}
-            ),
-            reverse(
-                "flashcards:flashcard-delete", kwargs={"pk": flashcard.id}
-            ),
-            reverse("decks:deck-list"),
-            reverse("decks:deck-create"),
-            reverse("decks:deck-detail", kwargs={"pk": deck.id}),
-            reverse("decks:deck-update", kwargs={"pk": deck.id}),
-            reverse("decks:deck-delete", kwargs={"pk": deck.id}),
-        ]
+def test_deck_detail_is_resolved(client_as_user, user):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-        for url in urls:
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 302)
+    response = client_as_user.get(reverse("decks:deck-detail", kwargs={"pk": deck.id}))
+    assert response.status_code == 200
 
-    def test_redirect_if_user_have_no_access_to_the_deck(self):
-        deck = self.create_deck()
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("decks:deck-detail", kwargs={"pk": deck.id})
-        )
+def test_deck_create_is_resolved(client_as_user):
+    response = client_as_user.get(reverse("decks:deck-create"))
+    assert response.status_code == 200
 
-        self.assertEqual(response.status_code, 404)
 
-    def test_redirect_if_user_tries_to_delete_not_owned_deck(self):
-        deck = self.create_deck()
+def test_deck_update_is_resolved(client_as_user, user):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("decks:deck-delete", kwargs={"pk": deck.id})
-        )
+    response = client_as_user.get(reverse("decks:deck-update", kwargs={"pk": deck.id}))
+    assert response.status_code == 200
 
-        self.assertEqual(response.status_code, 404)
 
-    def test_redirect_if_user_tries_to_update_not_owned_deck(self):
-        deck = self.create_deck()
+def test_deck_delete_is_resolved(client_as_user, user):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("decks:deck-update", kwargs={"pk": deck.id})
-        )
+    response = client_as_user.get(reverse("decks:deck-delete", kwargs={"pk": deck.id}))
+    assert response.status_code == 200
 
-        self.assertEqual(response.status_code, 404)
 
-    def test_redirect_if_user_tries_to_view_not_owned_flashcard(self):
-        flashcard = self.create_flashcard()
+def test_not_logged_in_access(client, user):
+    flashcard = make_flashcard_with_answers(user)
+    deck = flashcard.deck
+    urls = [
+        reverse("flashcards:flashcard-list"),
+        reverse("flashcards:flashcard-create"),
+        reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id}),
+        reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id}),
+        reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id}),
+        reverse("decks:deck-list"),
+        reverse("decks:deck-create"),
+        reverse("decks:deck-detail", kwargs={"pk": deck.id}),
+        reverse("decks:deck-update", kwargs={"pk": deck.id}),
+        reverse("decks:deck-delete", kwargs={"pk": deck.id}),
+    ]
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
-        )
+    for url in urls:
+        assert client.get(url).status_code == 302
 
-        self.assertEqual(response.status_code, 404)
 
-    def test_redirect_if_user_tries_to_update_not_owned_flashcard(self):
-        flashcard = self.create_flashcard()
+def test_redirect_if_user_have_no_access_to_the_deck(client, user, user2):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
-        )
+    client.force_login(user2)
+    response = client.get(reverse("decks:deck-detail", kwargs={"pk": deck.id}))
 
-        self.assertEqual(response.status_code, 404)
+    assert response.status_code == 404
 
-    def test_redirect_if_user_tries_to_delete_not_owned_flashcard(self):
-        flashcard = self.create_flashcard()
 
-        self.client.login(username="testuser2", password="testpassword2")
-        response = self.client.get(
-            reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
-        )
+def test_redirect_if_user_tries_to_delete_not_owned_deck(client, user, user2):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-        self.assertEqual(response.status_code, 404)
+    client.force_login(user2)
+    response = client.get(reverse("decks:deck-delete", kwargs={"pk": deck.id}))
 
-    def test_review_flashcard(self):
-        flashcard = self.create_flashcard()
+    assert response.status_code == 404
 
-        response = self.client.get(
-            reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
-        )
 
-        self.assertEqual(response.status_code, 200)
+def test_redirect_if_user_tries_to_update_not_owned_deck(client, user, user2):
+    deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-    def test_review_flashcard_without_access_returns_404(self):
-        flashcard = self.create_flashcard()
+    client.force_login(user2)
+    response = client.get(reverse("decks:deck-update", kwargs={"pk": deck.id}))
 
-        self.client.login(username="testuser2", password="testpassword2")
+    assert response.status_code == 404
 
-        response = self.client.get(
-            reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
-        )
 
-        self.assertEqual(response.status_code, 404)
+def test_redirect_if_user_tries_to_view_not_owned_flashcard(client, user, user2):
+    flashcard = make_flashcard_with_answers(user)
+
+    client.force_login(user2)
+    response = client.get(reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id}))
+
+    assert response.status_code == 404
+
+
+def test_redirect_if_user_tries_to_update_not_owned_flashcard(client, user, user2):
+    flashcard = make_flashcard_with_answers(user)
+
+    client.force_login(user2)
+    response = client.get(reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id}))
+
+    assert response.status_code == 404
+
+
+def test_redirect_if_user_tries_to_delete_not_owned_flashcard(client, user, user2):
+    flashcard = make_flashcard_with_answers(user)
+
+    client.force_login(user2)
+    response = client.get(reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id}))
+
+    assert response.status_code == 404
+
+
+def test_review_flashcard(client_as_user, user):
+    flashcard = make_flashcard_with_answers(user)
+
+    response = client_as_user.get(reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id}))
+
+    assert response.status_code == 200
+
+
+def test_review_flashcard_without_access_returns_404(client, user, user2):
+    flashcard = make_flashcard_with_answers(user)
+
+    client.force_login(user2)
+
+    response = client.get(reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id}))
+
+    assert response.status_code == 404

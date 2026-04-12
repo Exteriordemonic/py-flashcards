@@ -1,50 +1,29 @@
 import random
 
 from django import forms
+from django.forms import formset_factory
 
-from flashcards.models import Flashcard
+
+from flashcards.models import Flashcard, Answer
+
+
+class AnswerForm(forms.ModelForm):
+    class Meta:
+        model = Answer
+        fields = [
+            "is_correct",
+            "text",
+        ]
+
+
+AnswerFormSet = formset_factory(AnswerForm, extra=0)
 
 
 class FlashcardForm(forms.ModelForm):
-    CORRECT_CHOICES = [
-        ("A", "A"),
-        ("B", "B"),
-        ("C", "C"),
-        ("D", "D"),
-    ]
-
-    correct_answer = forms.ChoiceField(
-        choices=CORRECT_CHOICES, widget=forms.RadioSelect  # opcjonalnie
-    )
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-
-        selected = self.cleaned_data["correct_answer"]
-
-        mapping = {
-            "A": instance.answer_a,
-            "B": instance.answer_b,
-            "C": instance.answer_c,
-            "D": instance.answer_d,
-        }
-
-        instance.correct_answer = mapping[selected]
-
-        if commit:
-            instance.save()
-
-        return instance
-
     class Meta:
         model = Flashcard
         fields = [
             "question",
-            "answer_a",
-            "answer_b",
-            "answer_c",
-            "answer_d",
-            "correct_answer",
             "deck",
         ]
 
@@ -54,11 +33,6 @@ class FlashcardDeckForm(FlashcardForm):
         model = Flashcard
         fields = [
             "question",
-            "answer_a",
-            "answer_b",
-            "answer_c",
-            "answer_d",
-            "correct_answer",
         ]
 
 
@@ -69,15 +43,11 @@ class FlashcardReviewForm(forms.Form):
         label="Choose Answer",
     )
 
-    def __init__(self, *args, flashcard=None, **kwargs):
+    def __init__(self, *args, flashcard=None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if flashcard:
-            choices = [
-                (flashcard.answer_a, flashcard.answer_a),
-                (flashcard.answer_b, flashcard.answer_b),
-                (flashcard.answer_c, flashcard.answer_c),
-                (flashcard.answer_d, flashcard.answer_d),
-            ]
+            texts = list(flashcard.answers.order_by("pk").values_list("text", flat=True))
+            choices = [(t, t) for t in texts]
 
             # Shuffle only on initial display (GET). Keep stable order on POST.
             if not self.is_bound:

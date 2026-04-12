@@ -15,8 +15,16 @@
         <div class="text-lg font-semibold text-base-content/80 mb-2">Question</div>
         <div class="text-xl font-bold text-base-content mb-6">{{ object.question }}</div>
         <div class="divider"></div>
-        <div class="text-lg font-semibold text-base-content/80 mb-2">Answer</div>
-        <div class="text-base-content mb-4">{{ object.correct_answer }}</div>
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Answers</div>
+        <ul class="list-none space-y-2 mb-4">
+          {% for answer in object.answers.all %}
+            <li class="text-base-content {% if answer.is_correct %}font-semibold text-success{% endif %}">
+              {{ answer.text }}{% if answer.is_correct %} (correct){% endif %}
+            </li>
+          {% empty %}
+            <li class="text-base-content/60">No answers yet. Add them in the admin.</li>
+          {% endfor %}
+        </ul>
       </div>
       <div class="flex gap-2">
         <a href="{% url 'flashcards:flashcard-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>

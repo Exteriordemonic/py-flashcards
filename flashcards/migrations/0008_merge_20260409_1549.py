@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flashcards', '0007_flashcard_unique_flashcard_created_by_question_deck'),
-        ('flashcards', '0007_remove_review_deck'),
+        ("flashcards", "0007_flashcard_unique_flashcard_created_by_question_deck"),
+        ("flashcards", "0007_remove_review_deck"),
     ]
 
-    operations = [
-    ]
+    operations = []

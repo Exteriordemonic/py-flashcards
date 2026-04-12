@@ -1,3 +1,1 @@
-from django.test import TestCase
-
-# Create your tests here.
+# Add user app tests here (pytest discovers tests.py per pytest.ini).

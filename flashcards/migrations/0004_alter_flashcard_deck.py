@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flashcards', '0003_alter_flashcard_deck'),
+        ("flashcards", "0003_alter_flashcard_deck"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='flashcard',
-            name='deck',
-            field=models.ManyToManyField(blank=True, related_name='flashcards', to='flashcards.deck'),
+            model_name="flashcard",
+            name="deck",
+            field=models.ManyToManyField(blank=True, related_name="flashcards", to="flashcards.deck"),
         ),
     ]

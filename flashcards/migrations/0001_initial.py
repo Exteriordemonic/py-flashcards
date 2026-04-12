@@ -15,58 +15,159 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Deck',
+            name="Deck",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('members', models.ManyToManyField(related_name='decks_member', to=settings.AUTH_USER_MODEL)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='decks', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "members",
+                    models.ManyToManyField(related_name="decks_member", to=settings.AUTH_USER_MODEL),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="decks",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Flashcard',
+            name="Flashcard",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('question', models.CharField(max_length=255)),
-                ('answer_a', models.CharField(max_length=255)),
-                ('answer_b', models.CharField(max_length=255)),
-                ('answer_c', models.CharField(max_length=255)),
-                ('answer_d', models.CharField(max_length=255)),
-                ('correct_answer', models.CharField(max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='flashcards', to=settings.AUTH_USER_MODEL)),
-                ('deck', models.ManyToManyField(related_name='flashcards', to='flashcards.deck')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("question", models.CharField(max_length=255)),
+                ("answer_a", models.CharField(max_length=255)),
+                ("answer_b", models.CharField(max_length=255)),
+                ("answer_c", models.CharField(max_length=255)),
+                ("answer_d", models.CharField(max_length=255)),
+                ("correct_answer", models.CharField(max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="flashcards",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "deck",
+                    models.ManyToManyField(related_name="flashcards", to="flashcards.deck"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FlashcardUserState',
+            name="FlashcardUserState",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ease_factor', models.FloatField(default=2.5)),
-                ('next_review_at', models.DateField()),
-                ('last_reviewed_at', models.DateTimeField(blank=True, null=True)),
-                ('flashcard', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flashcard_states', to='flashcards.flashcard')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='flashcard_states', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ease_factor", models.FloatField(default=2.5)),
+                ("next_review_at", models.DateField()),
+                ("last_reviewed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "flashcard",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="flashcard_states",
+                        to="flashcards.flashcard",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="flashcard_states",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quality', models.IntegerField(choices=[(1, 'Hard'), (2, 'Normal'), (3, 'Easy'), (4, 'Very Easy'), (5, 'Perfect')])),
-                ('reviewed_at', models.DateTimeField(auto_now_add=True)),
-                ('deck', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviews', to='flashcards.deck')),
-                ('flashcard', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='flashcards.flashcard')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "quality",
+                    models.IntegerField(
+                        choices=[
+                            (1, "Hard"),
+                            (2, "Normal"),
+                            (3, "Easy"),
+                            (4, "Very Easy"),
+                            (5, "Perfect"),
+                        ]
+                    ),
+                ),
+                ("reviewed_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "deck",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="reviews",
+                        to="flashcards.deck",
+                    ),
+                ),
+                (
+                    "flashcard",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to="flashcards.flashcard",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='deck',
-            constraint=models.UniqueConstraint(fields=('name', 'owner'), name='unique_deck_user_name'),
+            model_name="deck",
+            constraint=models.UniqueConstraint(fields=("name", "owner"), name="unique_deck_user_name"),
         ),
         migrations.AddConstraint(
-            model_name='flashcarduserstate',
-            constraint=models.UniqueConstraint(fields=('flashcard', 'user'), name='unique_flashcard_user_state'),
+            model_name="flashcarduserstate",
+            constraint=models.UniqueConstraint(fields=("flashcard", "user"), name="unique_flashcard_user_state"),
         ),
     ]

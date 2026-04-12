@@ -1,12 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.db.models import Count
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
 
-from flashcards.constants import FLASHCARD_DUPLICATE_ERROR
-from flashcards.forms import FlashcardDeckForm
+from flashcards.forms import FlashcardDeckForm, AnswerFormSet
+from flashcards.services import FlashcardService, AnswerInput
 
 from decks.forms import DeckForm
 from decks.mixins import OwnerQuerysetMixin
@@ -18,67 +18,60 @@ class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     template_name = "decks/deck_list.html"
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .annotate(flashcards_count=Count("flashcards"))
-            .only("id", "name", "owner")
-        )
+        return super().get_queryset().annotate(flashcards_count=Count("flashcards")).only("id", "name", "owner")
 
 
-class DeckDetailView(
-    LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView
-):
+class DeckDetailView(LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView):
     model = Deck
     template_name = "decks/deck_detail.html"
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related("flashcards")
-            .only("name", "flashcards__question")
-        )
+        return super().get_queryset().prefetch_related("flashcards").only("name", "flashcards__question")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["flashcards"] = self.object.flashcards.filter(
-            created_by=self.request.user
-        )
+        context["flashcards"] = self.object.flashcards.filter(created_by=self.request.user)
 
-        context["form_create_flashcard"] = kwargs.get(
-            "form_create_flashcard", FlashcardDeckForm()
-        )
+        context["form_create_flashcard"] = kwargs.get("form_create_flashcard", FlashcardDeckForm())
+        context["form_create_flashcard_formset"] = kwargs.get("form_create_flashcard_formset", AnswerFormSet())
 
         return context
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()  # Deck
 
-        form = FlashcardDeckForm(request.POST)
+        form = FlashcardDeckForm(self.request.POST)
+        formset = AnswerFormSet(self.request.POST)
 
-        if form.is_valid():
-            flashcard = form.save(commit=False)
-            flashcard.deck = self.object
-            flashcard.created_by = request.user
+        if form.is_valid() and formset.is_valid():
+            question = form.cleaned_data.get("question")
+            deck = self.object
+
+            answers = [AnswerInput(**answer) for answer in formset.cleaned_data if answer]
+            user = self.request.user
+
             try:
-                with transaction.atomic():
-                    flashcard.save()
-            except IntegrityError:
-                form.add_error("question", FLASHCARD_DUPLICATE_ERROR)
-                context = self.get_context_data(form_create_flashcard=form)
+                FlashcardService.create_flashcard(question=question, deck=deck, created_by=user, answers=answers)
+            except (ValueError, IntegrityError) as e:
+
+                form.add_error(None, e)
+                context = self.get_context_data(
+                    form_create_flashcard=form,
+                    form_create_flashcard_formset=formset,
+                )
                 return self.render_to_response(context)
+            else:
+                return redirect(self.request.path_info)
+        else:
+            context = self.get_context_data(
+                form_create_flashcard=form,
+                form_create_flashcard_formset=formset,
+            )
+            return self.render_to_response(context)
 
-            return redirect("decks:deck-detail", pk=self.object.pk)
 
-        context = self.get_context_data(form_create_flashcard=form)
-        return self.render_to_response(context)
-
-
-class DeckUpdateView(
-    LoginRequiredMixin, OwnerQuerysetMixin, generic.UpdateView
-):
+class DeckUpdateView(LoginRequiredMixin, OwnerQuerysetMixin, generic.UpdateView):
     model = Deck
     form_class = DeckForm
     template_name = "decks/deck_form.html"

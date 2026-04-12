@@ -23,7 +23,7 @@
     
           <label
             for="{{ radio.id_for_label }}"
-            class="btn w-full justify-start {% if correct_answer == radio.choice_label %}btn-success{% elif feedback_message %}btn-wrong{% endif %}"
+            class="btn w-full justify-start {% if radio.choice_label in correct_answer_texts %}btn-success{% elif feedback_message %}btn-wrong{% endif %}"
        
           >
             {{ radio.choice_label }}

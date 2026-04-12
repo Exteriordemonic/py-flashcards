@@ -1,230 +1,231 @@
+import pytest
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
 
 from decks.models import Deck
 from flashcards.models import Flashcard, Review
+from flashcards.services import AnswerInput, FlashcardService
 
 User = get_user_model()
 
 
-class FlashcardAndDeckViewsTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="view_user",
-            password="secret123",
+@pytest.fixture
+def view_user(db):
+    return User.objects.create_user(username="view_user", password="secret123")
+
+
+@pytest.fixture
+def view_user2(db):
+    return User.objects.create_user(username="view_user2", password="secret123")
+
+
+@pytest.fixture
+def view_deck(view_user):
+    return Deck.objects.create(name="Math", owner=view_user)
+
+
+@pytest.fixture
+def view_flashcard(view_user, view_deck):
+    return FlashcardService.create_flashcard(
+        question="2 + 2 = ?",
+        created_by=view_user,
+        deck=view_deck,
+        answers=[
+            AnswerInput(text="3"),
+            AnswerInput(text="4", is_correct=True),
+            AnswerInput(text="5"),
+            AnswerInput(text="6"),
+        ],
+    )
+
+
+@pytest.fixture
+def client_as_view_user(client, view_user):
+    client.force_login(view_user)
+    return client
+
+
+def test_flashcard_list_view_for_logged_user(client_as_view_user):
+    response = client_as_view_user.get(reverse("flashcards:flashcard-list"))
+    assert response.status_code == 200
+
+
+def test_flashcard_list_view_requires_login(client):
+    response = client.get(reverse("flashcards:flashcard-list"))
+    assert response.status_code == 302
+
+
+def test_flashcard_create_view_creates_object(client_as_view_user, view_deck):
+    response = client_as_view_user.post(
+        reverse("flashcards:flashcard-create"),
+        data={
+            "question": "Capital of France?",
+            "deck": view_deck.id,
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-text": "Paris",
+            "form-0-is_correct": "on",
+        },
+    )
+    assert response.status_code == 302
+    flashcard = Flashcard.objects.get(question="Capital of France?")
+    assert flashcard.deck == view_deck
+    assert flashcard.answers.count() == 1
+    answer = flashcard.answers.get()
+    assert answer.text == "Paris"
+    assert answer.is_correct is True
+
+
+def test_flashcard_delete_view_deletes_object(client_as_view_user, view_flashcard):
+    response = client_as_view_user.post(
+        reverse(
+            "flashcards:flashcard-delete",
+            kwargs={"pk": view_flashcard.id},
         )
-
-        self.user2 = User.objects.create_user(
-            username="view_user2",
-            password="secret123",
-        )
-
-        self.client.login(username="view_user", password="secret123")
-
-        self.flashcard = Flashcard.objects.create(
-            question="2 + 2 = ?",
-            answer_a="3",
-            answer_b="4",
-            answer_c="5",
-            answer_d="6",
-            correct_answer="4",
-            deck=Deck.objects.create(name="Math", owner=self.user),
-            created_by=self.user,
-        )
-        self.deck = self.flashcard.deck
-
-    def test_flashcard_list_view_for_logged_user(self):
-        response = self.client.get(reverse("flashcards:flashcard-list"))
-        self.assertEqual(response.status_code, 200)
-
-    def test_flashcard_list_view_requires_login(self):
-        self.client.logout()
-        response = self.client.get(reverse("flashcards:flashcard-list"))
-        self.assertEqual(response.status_code, 302)
-
-    def test_flashcard_create_view_creates_object(self):
-        response = self.client.post(
-            reverse("flashcards:flashcard-create"),
-            data={
-                "question": "Capital of France?",
-                "answer_a": "Berlin",
-                "answer_b": "Madrid",
-                "answer_c": "Paris",
-                "answer_d": "Rome",
-                "correct_answer": "C",
-                "deck": self.deck.id,
-                "created_by": self.user.id,
-            },
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            Flashcard.objects.filter(question="Capital of France?").exists()
-        )
-
-    def test_flashcard_delete_view_deletes_object(self):
-        response = self.client.post(
-            reverse(
-                "flashcards:flashcard-delete",
-                kwargs={"pk": self.flashcard.id},
-            )
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(
-            Flashcard.objects.filter(id=self.flashcard.id).exists()
-        )
-
-    def test_deck_create_view_creates_object(self):
-        response = self.client.post(
-            reverse("decks:deck-create"),
-            data={
-                "name": "Geography",
-                "owner": self.user.id,
-                "members": [self.user.id],
-            },
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(Deck.objects.filter(name="Geography").exists())
-
-    def test_deck_delete_view_deletes_object(self):
-        response = self.client.post(
-            reverse("decks:deck-delete", kwargs={"pk": self.deck.id})
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Deck.objects.filter(id=self.deck.id).exists())
-
-    def test_flashcard_list_show_current_user_flashcardsdef(self):
-        # Test that flashcard list view only shows flashcards created by current user
-        Flashcard.objects.create(
-            question="Question owned by user2",
-            answer_a="A",
-            answer_b="B",
-            answer_c="C",
-            answer_d="D",
-            correct_answer="A",
-            deck=Deck.objects.create(name="User2 Deck", owner=self.user2),
-            created_by=self.user2,
-        )
-        response = self.client.get(reverse("flashcards:flashcard-list"))
-
-        self.assertEqual(response.status_code, 200)
-        # Should contain current user's flashcard
-        self.assertContains(response, self.flashcard.question)
-        # Should not contain flashcard of the other user
-        self.assertNotContains(response, "Question owned by user2")
-
-    def test_flashcard_list_show_correct_data_for_decks(self):
-        Flashcard.objects.create(
-            question="Question owned by user2",
-            answer_a="A",
-            answer_b="B",
-            answer_c="C",
-            answer_d="D",
-            correct_answer="A",
-            deck=self.deck,
-            created_by=self.user,
-        )
-
-        response = self.client.get(reverse("flashcards:flashcard-list"))
-        self.assertEqual(response.status_code, 200)
-        # Should contains the deck name
-        self.assertContains(response, self.deck.name)
-
-    def test_deck_detail_view_that_is_not_owner(self):
-        self.client.login(username="view_user2", password="secret123")
-
-        response = self.client.get(
-            reverse("decks:deck-detail", kwargs={"pk": self.deck.id})
-        )
-        self.assertEqual(response.status_code, 404)
-
-    def test_deck_show_only_owner_flashcards_on_deck(self):
-        Flashcard.objects.create(
-            question="Question for user 2",
-            answer_a="A",
-            answer_b="B",
-            answer_c="C",
-            answer_d="D",
-            correct_answer="A",
-            deck=self.deck,
-            created_by=self.user2,
-        )
-
-        response = self.client.get(
-            reverse("decks:deck-detail", kwargs={"pk": self.deck.id})
-        )
-        # Ensure user is owner to view flashcards in deck;
-        # user2 flashcard should NOT appear
-        self.assertEqual(response.status_code, 200)
-        response_content = response.content.decode()
-        self.assertNotIn("Question for user 2", response_content)
+    )
+    assert response.status_code == 302
+    assert not Flashcard.objects.filter(id=view_flashcard.id).exists()
 
 
-class FlashcardReviewTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(
-            username="view_user",
-            password="secret123",
-        )
+def test_deck_create_view_creates_object(client_as_view_user, view_user):
+    response = client_as_view_user.post(
+        reverse("decks:deck-create"),
+        data={
+            "name": "Geography",
+        },
+    )
+    assert response.status_code == 302
+    deck = Deck.objects.get(name="Geography")
+    assert deck.owner == view_user
 
-        self.client.login(username="view_user", password="secret123")
 
-        self.flashcard = Flashcard.objects.create(
-            question="Capital of Poland?",
-            answer_a="Warsaw",
-            answer_b="Berlin",
-            answer_c="Krakow",
-            answer_d="Prague",
-            correct_answer="Warsaw",
-            deck=Deck.objects.create(name="Geography", owner=self.user),
-            created_by=self.user,
-        )
+def test_deck_delete_view_deletes_object(client_as_view_user, view_deck):
+    response = client_as_view_user.post(reverse("decks:deck-delete", kwargs={"pk": view_deck.id}))
+    assert response.status_code == 302
+    assert not Deck.objects.filter(id=view_deck.id).exists()
 
-    def test_review_view_displays_question_and_options(self):
-        url = reverse(
-            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
-        )
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode()
-        # Check question and all answers are shown
-        self.assertIn("Capital of Poland?", content)
-        self.assertIn("Warsaw", content)
-        self.assertIn("Berlin", content)
-        self.assertIn("Krakow", content)
-        self.assertIn("Prague", content)
 
-    def test_review_view_allows_answer_submission_and_feedback(self):
-        url = reverse(
-            "flashcards:flashcard-review", kwargs={"pk": self.flashcard.id}
-        )
+def test_flashcard_list_shows_only_current_user_flashcards(client_as_view_user, view_user, view_user2, view_flashcard):
+    Flashcard.objects.create(
+        question="Question owned by user2",
+        deck=Deck.objects.create(name="User2 Deck", owner=view_user2),
+        created_by=view_user2,
+    )
+    response = client_as_view_user.get(reverse("flashcards:flashcard-list"))
 
-        # Simulate posting a correct answer
-        response = self.client.post(url, {"selected_answer": "Warsaw"})
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode()
-        self.assertIn(
-            "correct", content.lower()
-        )  # Should mention it's correct
+    assert response.status_code == 200
+    assert view_flashcard.question.encode() in response.content
+    assert b"Question owned by user2" not in response.content
 
-        # Simulate posting an incorrect answer
-        response = self.client.post(url, {"selected_answer": "Berlin"})
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode()
-        self.assertIn(
-            "incorrect", content.lower()
-        )  # Should mention it's incorrect
 
-    def test_review_created_after_post(self):
-        url = reverse("flashcards:flashcard-review", args=[self.flashcard.id])
+def test_flashcard_list_show_correct_data_for_decks(client_as_view_user, view_user, view_deck):
+    Flashcard.objects.create(
+        question="Second question in same deck",
+        deck=view_deck,
+        created_by=view_user,
+    )
 
-        data = {"selected_answer": self.flashcard.answer_a}
+    response = client_as_view_user.get(reverse("flashcards:flashcard-list"))
+    assert response.status_code == 200
+    assert view_deck.name.encode() in response.content
 
-        self.client.post(url, data=data)
 
-        self.assertEqual(Review.objects.count(), 1)
+def test_deck_detail_view_that_is_not_owner(client, view_user2, view_deck):
+    client.force_login(view_user2)
 
-        review = Review.objects.first()
+    response = client.get(reverse("decks:deck-detail", kwargs={"pk": view_deck.id}))
+    assert response.status_code == 404
 
-        self.assertEqual(review.user, self.user)
-        self.assertEqual(review.flashcard, self.flashcard)
+
+def test_deck_show_only_owner_flashcards_on_deck(client_as_view_user, view_user, view_user2, view_deck):
+    Flashcard.objects.create(
+        question="Question for user 2",
+        deck=view_deck,
+        created_by=view_user2,
+    )
+
+    response = client_as_view_user.get(reverse("decks:deck-detail", kwargs={"pk": view_deck.id}))
+    assert response.status_code == 200
+    assert "Question for user 2" not in response.content.decode()
+
+
+@pytest.fixture
+def review_user(db):
+    return User.objects.create_user(username="view_user", password="secret123")
+
+
+@pytest.fixture
+def review_flashcard(review_user):
+    deck = Deck.objects.create(name="Geography", owner=review_user)
+    return FlashcardService.create_flashcard(
+        question="Capital of Poland?",
+        created_by=review_user,
+        deck=deck,
+        answers=[
+            AnswerInput(text="Warsaw", is_correct=True),
+            AnswerInput(text="Berlin"),
+            AnswerInput(text="Krakow"),
+            AnswerInput(text="Prague"),
+        ],
+    )
+
+
+@pytest.fixture
+def client_review(client, review_user):
+    client.force_login(review_user)
+    return client
+
+
+def test_review_view_flashcard_without_answers(client_review, review_user):
+    deck = Deck.objects.create(name="Solo Deck", owner=review_user)
+    flashcard = Flashcard.objects.create(
+        question="Question only",
+        deck=deck,
+        created_by=review_user,
+    )
+    url = reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
+    response = client_review.get(url)
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Question only" in content
+    assert response.context["form"].fields["selected_answer"].choices == []
+
+
+def test_review_view_displays_question_and_options(client_review, review_flashcard):
+    url = reverse("flashcards:flashcard-review", kwargs={"pk": review_flashcard.id})
+    response = client_review.get(url)
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert "Capital of Poland?" in content
+    assert "Warsaw" in content
+    assert "Berlin" in content
+    assert "Krakow" in content
+    assert "Prague" in content
+
+
+def test_review_view_allows_answer_submission_and_feedback(client_review, review_flashcard):
+    url = reverse("flashcards:flashcard-review", kwargs={"pk": review_flashcard.id})
+
+    response = client_review.post(url, {"selected_answer": "Warsaw"})
+    assert response.status_code == 200
+    assert "correct" in response.content.decode().lower()
+
+    response = client_review.post(url, {"selected_answer": "Berlin"})
+    assert response.status_code == 200
+    assert "incorrect" in response.content.decode().lower()
+
+
+def test_review_created_after_post(client_review, review_user, review_flashcard):
+    url = reverse("flashcards:flashcard-review", args=[review_flashcard.id])
+
+    correct_text = review_flashcard.answers.filter(is_correct=True).values_list("text", flat=True).first()
+    client_review.post(url, data={"selected_answer": correct_text})
+
+    assert Review.objects.count() == 1
+
+    review = Review.objects.first()
+
+    assert review.user == review_user
+    assert review.flashcard == review_flashcard
