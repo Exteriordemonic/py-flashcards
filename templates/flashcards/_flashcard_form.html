@@ -16,6 +16,9 @@
         <div class="flex-1">
           {{ elem.text|as_crispy_field }}
         </div>
+        {% if object %}
+        <button type="button" class="btn btn-error btn-xs js-remove-answer" aria-label="Remove answer">&times;</button>
+        {% endif %}
       </div>
     {% endfor %}
     </div>
@@ -43,7 +46,7 @@
     <div class="flex-1">
       {{ formset.empty_form.text|as_crispy_field }}
     </div>
-  <button type="button" class="btn btn-error btn-xs js-remove-answer" aria-label="Remove answer">&times;</button>
+    <button type="button" class="btn btn-error btn-xs js-remove-answer" aria-label="Remove answer">&times;</button>
   </div>
 </template>
 

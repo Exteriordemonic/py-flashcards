@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views import generic
@@ -14,16 +14,8 @@ from flashcards.forms import (
     FlashcardReviewForm,
 )
 from flashcards.mixins import CreatedByQuerysetMixin
-from flashcards.models import Answer, Flashcard, Review
+from flashcards.models import Flashcard, Review
 from flashcards.services import FlashcardService, AnswerInput
-
-
-def _answer_rows_from_formset(formset):
-    for form in formset:
-        cleaned = form.cleaned_data
-        text = (cleaned.get("text") or "").strip()
-        if text:
-            yield text, cleaned.get("is_correct", False)
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -65,16 +57,19 @@ class FlashcardUpdateView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.Up
         if not formset.is_valid():
             return self.form_invalid(form)
 
-        with transaction.atomic():
-            self.object = form.save()
-            self.object.answers.all().delete()
-            for text, is_correct in _answer_rows_from_formset(formset):
-                Answer.objects.create(
-                    flashcard=self.object,
-                    text=text,
-                    is_correct=is_correct,
-                )
-        return HttpResponseRedirect(self.get_success_url())
+        question = form.cleaned_data.get("question")
+        deck = form.cleaned_data.get("deck")
+        answers = [AnswerInput(**answer) for answer in formset.cleaned_data if answer]
+
+        try:
+            self.object = FlashcardService.update_flashcard(
+                self.object, question=question, deck=deck, answers=answers
+            )
+        except (ValueError, IntegrityError) as e:
+            form.add_error(None, e)
+            return self.form_invalid(form)
+        else:
+            return HttpResponseRedirect(self.get_success_url())
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)

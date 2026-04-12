@@ -16,7 +16,7 @@ class AnswerForm(forms.ModelForm):
         ]
 
 
-AnswerFormSet = formset_factory(AnswerForm, extra=1)
+AnswerFormSet = formset_factory(AnswerForm, extra=0)
 
 
 class FlashcardForm(forms.ModelForm):

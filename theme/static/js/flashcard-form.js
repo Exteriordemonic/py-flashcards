@@ -1,66 +1,77 @@
-window.addEventListener("DOMContentLoaded", function() {
-    const template = document.querySelector("#answer-template");
-    const trigger = document.querySelector(".js-add-new-answer");
-    const wrapper = document.querySelector(".js-answers-wrapper");
+const FLASHCARD_FORM = {
+    SELECTORS: {
+        TEMPLATE: "#answer-template",
+        ADD_BTN: ".js-add-new-answer",
+        WRAPPER: ".js-answers-wrapper",
+        TOTAL_FORMS: '[name$="-TOTAL_FORMS"]',
+        REMOVE_ANSWER: ".js-remove-answer"
+    },
 
-    if (trigger && template && wrapper) {
-        trigger.addEventListener("click", function(e) {
-            e.preventDefault();
+    init() {
+        this.template = document.querySelector(this.SELECTORS.TEMPLATE);
+        this.addBtn = document.querySelector(this.SELECTORS.ADD_BTN);
+        this.wrapper = document.querySelector(this.SELECTORS.WRAPPER);
+        this.totalFormsInput = document.querySelector(this.SELECTORS.TOTAL_FORMS);
 
-            // Clone the answer template content
-            const clone = template.content.cloneNode(true);
+        // Bind add event
+        if (this.addBtn && this.template && this.wrapper) {
+            this.addBtn.addEventListener("click", this.handleAddAnswer.bind(this));
+        }
+        // Re-bind remove to any initial buttons (edit mode)
+        document.querySelectorAll(this.SELECTORS.REMOVE_ANSWER).forEach(btn => {
+            btn.addEventListener("click", this.handleRemoveAnswer.bind(this));
+        });
+    },
 
-            // Find the TOTAL_FORMS hidden input and increment its value
-            const totalForms = document.querySelector('[name$="-TOTAL_FORMS"]');
-            if (!totalForms) return;
-            const formIdx = parseInt(totalForms.value, 10);
+    handleAddAnswer(e) {
+        e.preventDefault();
+        if (!this.totalFormsInput) return;
+        const formIdx = parseInt(this.totalFormsInput.value, 10);
 
-            // Replace __prefix__ in the cloned fields with the correct index
-            clone.querySelectorAll("*").forEach(function(node) {
-                if (node.name) {
-                    node.name = node.name.replace(/__prefix__/g, formIdx);
-                }
-                if (node.id) {
-                    node.id = node.id.replace(/__prefix__/g, formIdx);
-                }
-                // Fix labels 'for' attributes
-                if (node.getAttribute && node.getAttribute("for")) {
-                    node.setAttribute("for", node.getAttribute("for").replace(/__prefix__/g, formIdx));
-                }
-            });
+        // Build new answer element from template
+        const clone = this.template.content.cloneNode(true);
+        this.replacePrefix(clone, formIdx);
 
-            // Increment the total forms count
-            totalForms.value = formIdx + 1;
+        // Increment TOTAL_FORMS immediately
+        this.totalFormsInput.value = formIdx + 1;
 
-            // Find the root of the new answer element (outermost div with .js-answer-element)
-            let answerElem = null;
-            // Try to find first element with .js-answer-element inside the clone
-            clone.querySelectorAll(".js-answer-element").forEach(function(elem) {
-                if (!answerElem) answerElem = elem;
-            });
-
-            // Ensure remove button exists and attach click handler
-            if (answerElem) {
-                let removeBtn = answerElem.querySelector(".js-remove-answer");
-                if (!removeBtn) {
-                    // Create remove button if not exists (for safety)
-                    removeBtn = document.createElement("button");
-                    removeBtn.type = "button";
-                    removeBtn.className = "btn btn-error btn-xs js-remove-answer";
-                    removeBtn.setAttribute("aria-label", "Remove answer");
-                    removeBtn.innerHTML = "&times;";
-                    answerElem.appendChild(removeBtn);
-                }
-                removeBtn.addEventListener("click", function() {
-                    answerElem.remove();
-                    // Decrement the total forms count
-                    const newTotal = Math.max(parseInt(totalForms.value, 10) - 1, 0);
-                    totalForms.value = newTotal;
-                });
+        // Find the answer element root and wire up remove button
+        const answerElem = clone.querySelector(".js-answer-element");
+        if (answerElem) {
+            const removeBtn = answerElem.querySelector(this.SELECTORS.REMOVE_ANSWER);
+            if (removeBtn) {
+                removeBtn.addEventListener("click", this.handleRemoveAnswer.bind(this));
             }
+        }
 
-            // Append the new answer element to the DOM
-            wrapper.appendChild(clone);
+        this.wrapper.appendChild(clone);
+    },
+
+    handleRemoveAnswer(e) {
+        e.preventDefault && e.preventDefault();
+        const answerElem = e.currentTarget.closest(".js-answer-element");
+        if (answerElem) {
+            answerElem.remove();
+            // Update TOTAL_FORMS appropriately
+            if (this.totalFormsInput) {
+                this.totalFormsInput.value = Math.max(parseInt(this.totalFormsInput.value, 10) - 1, 0);
+            }
+        }
+    },
+
+    replacePrefix(fragment, idx) {
+        fragment.querySelectorAll("*").forEach(function(node) {
+            if (node.name) {
+                node.name = node.name.replace(/__prefix__/g, idx);
+            }
+            if (node.id) {
+                node.id = node.id.replace(/__prefix__/g, idx);
+            }
+            if (node.getAttribute && node.getAttribute("for")) {
+                node.setAttribute("for", node.getAttribute("for").replace(/__prefix__/g, idx));
+            }
         });
     }
-});
+};
+
+window.addEventListener("DOMContentLoaded", () => FLASHCARD_FORM.init());
