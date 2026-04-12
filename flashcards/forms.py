@@ -15,11 +15,6 @@ class AnswerForm(forms.ModelForm):
             "text",
         ]
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        # Formset rows may be left blank; we only persist rows with non-empty text in the view.
-        self.fields["text"].required = False
-
 
 AnswerFormSet = formset_factory(AnswerForm, extra=1)
 

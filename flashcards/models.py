@@ -117,5 +117,5 @@ class Answer(models.Model):
     """
 
     flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE, related_name="answers")
-    text = models.CharField(max_length=255)
+    text = models.CharField(max_length=255, blank=False)
     is_correct = models.BooleanField(default=False)

@@ -15,6 +15,7 @@ from flashcards.forms import (
 )
 from flashcards.mixins import CreatedByQuerysetMixin
 from flashcards.models import Answer, Flashcard, Review
+from flashcards.services import FlashcardService, AnswerInput
 
 
 def _answer_rows_from_formset(formset):
@@ -106,20 +107,21 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
         if not formset.is_valid():
             return self.form_invalid(form)
 
-        form.instance.created_by = self.request.user
+        question = form.cleaned_data.get("question")
+        deck = form.cleaned_data.get("deck")
+        answers = [AnswerInput(**answer) for answer in formset.cleaned_data if answer]
+        user = self.request.user
+
         try:
-            with transaction.atomic():
-                self.object = form.save()
-                for text, is_correct in _answer_rows_from_formset(formset):
-                    Answer.objects.create(
-                        flashcard=self.object,
-                        text=text,
-                        is_correct=is_correct,
-                    )
-            return HttpResponseRedirect(self.get_success_url())
-        except IntegrityError:
-            form.add_error("question", FLASHCARD_DUPLICATE_ERROR)
+            flashcard = FlashcardService.create_flashcard(
+                question=question, deck=deck, created_by=user, answers=answers
+            )
+            self.object = flashcard
+        except ValueError as e:
+            form.add_error(None, e)
             return self.form_invalid(form)
+        else:
+            return HttpResponseRedirect(self.get_success_url())
 
 
 class FlashcardDeleteView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.DeleteView):
