@@ -5,7 +5,7 @@ from flashcards.services import AnswerInput, FlashcardService
 def make_flashcard_with_answers(
     user,
     *,
-    question="Jaka jest stolica Polski?",
+    question="What is the capital of Poland?",
     deck=None,
     deck_owner=None,
 ):
@@ -17,9 +17,9 @@ def make_flashcard_with_answers(
         created_by=user,
         deck=deck,
         answers=[
-            AnswerInput(text="Gdańsk"),
-            AnswerInput(text="Kraków"),
-            AnswerInput(text="Warszawa", is_correct=True),
-            AnswerInput(text="Wrocław"),
+            AnswerInput(text="London"),
+            AnswerInput(text="Berlin"),
+            AnswerInput(text="Warsaw", is_correct=True),
+            AnswerInput(text="Paris"),
         ],
     )
