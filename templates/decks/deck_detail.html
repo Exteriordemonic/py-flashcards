@@ -41,13 +41,7 @@
       </div>
       <div class="mb-8 p-4 bg-gray-100">
         <div class="text-lg font-semibold mb-4">Create Flashcard</div>
-        <form method="post" class="flex flex-col gap-6">
-          {% csrf_token %}
-          {{ form_create_flashcard|crispy }}
-          <div class="flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">Add</button>
-          </div>
-        </form>
+        {% include "flashcards/_flashcard_form.html" with form=form_create_flashcard formset=form_create_flashcard_formset %}
       </div>
 
       <div class="flex gap-2">

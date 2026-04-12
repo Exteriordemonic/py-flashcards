@@ -117,7 +117,7 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
                 question=question, deck=deck, created_by=user, answers=answers
             )
             self.object = flashcard
-        except ValueError as e:
+        except (ValueError, IntegrityError) as e:
             form.add_error(None, e)
             return self.form_invalid(form)
         else:
