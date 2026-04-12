@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError, transaction
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic.base import TemplateView
@@ -8,11 +9,20 @@ from decks.models import Deck
 
 from flashcards.constants import FLASHCARD_DUPLICATE_ERROR
 from flashcards.forms import (
+    AnswerFormSet,
     FlashcardForm,
     FlashcardReviewForm,
 )
 from flashcards.mixins import CreatedByQuerysetMixin
-from flashcards.models import Flashcard, Review
+from flashcards.models import Answer, Flashcard, Review
+
+
+def _answer_rows_from_formset(formset):
+    for form in formset:
+        cleaned = form.cleaned_data
+        text = (cleaned.get("text") or "").strip()
+        if text:
+            yield text, cleaned.get("is_correct", False)
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -39,6 +49,32 @@ class FlashcardUpdateView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.Up
 
     success_url = reverse_lazy("flashcards:flashcard-list")
 
+    def get_context_data(self, **kwargs) -> dict[str]:
+        context = super().get_context_data(**kwargs)
+        if "formset" not in context:
+            if self.request.method == "POST":
+                context["formset"] = AnswerFormSet(self.request.POST)
+            else:
+                initial = [{"text": a.text, "is_correct": a.is_correct} for a in self.object.answers.order_by("pk")]
+                context["formset"] = AnswerFormSet(initial=initial)
+        return context
+
+    def form_valid(self, form):
+        formset = AnswerFormSet(self.request.POST)
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
+        with transaction.atomic():
+            self.object = form.save()
+            self.object.answers.all().delete()
+            for text, is_correct in _answer_rows_from_formset(formset):
+                Answer.objects.create(
+                    flashcard=self.object,
+                    text=text,
+                    is_correct=is_correct,
+                )
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["deck"].queryset = Deck.objects.filter(owner=self.request.user)
@@ -51,16 +87,36 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
 
     success_url = reverse_lazy("flashcards:flashcard-list")
 
+    def get_context_data(self, **kwargs) -> dict[str]:
+        context = super().get_context_data(**kwargs)
+        if "formset" not in context:
+            if self.request.method == "POST":
+                context["formset"] = AnswerFormSet(self.request.POST)
+            else:
+                context["formset"] = AnswerFormSet()
+        return context
+
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["deck"].queryset = Deck.objects.filter(owner=self.request.user)
         return form
 
     def form_valid(self, form):
+        formset = AnswerFormSet(self.request.POST)
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
         form.instance.created_by = self.request.user
         try:
             with transaction.atomic():
-                return super().form_valid(form)
+                self.object = form.save()
+                for text, is_correct in _answer_rows_from_formset(formset):
+                    Answer.objects.create(
+                        flashcard=self.object,
+                        text=text,
+                        is_correct=is_correct,
+                    )
+            return HttpResponseRedirect(self.get_success_url())
         except IntegrityError:
             form.add_error("question", FLASHCARD_DUPLICATE_ERROR)
             return self.form_invalid(form)

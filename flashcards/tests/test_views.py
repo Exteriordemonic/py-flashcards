@@ -61,13 +61,21 @@ def test_flashcard_create_view_creates_object(client_as_view_user, view_deck):
         data={
             "question": "Capital of France?",
             "deck": view_deck.id,
+            "form-TOTAL_FORMS": "1",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "form-0-text": "Paris",
+            "form-0-is_correct": "on",
         },
     )
     assert response.status_code == 302
     flashcard = Flashcard.objects.get(question="Capital of France?")
     assert flashcard.deck == view_deck
-    # CreateView form only has question + deck; Answer rows are added elsewhere (e.g. admin / service).
-    assert flashcard.answers.count() == 0
+    assert flashcard.answers.count() == 1
+    answer = flashcard.answers.get()
+    assert answer.text == "Paris"
+    assert answer.is_correct is True
 
 
 def test_flashcard_delete_view_deletes_object(client_as_view_user, view_flashcard):

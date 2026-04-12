@@ -1,0 +1,51 @@
+{% load crispy_forms_tags %}
+{% load static %}
+
+<form method="POST" action="">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+    <legend class="fieldset-legend">Answers</legend>
+    {{ formset.management_form }}
+    <div class="js-answers-wrapper">
+      {% for elem in formset %}
+      <div class="flex items-center gap-3 mb-3 js-answer-element">
+        <label class="flex items-center cursor-pointer select-none">
+          {{ elem.is_correct }}
+        </label>
+        <div class="flex-1">
+          {{ elem.text|as_crispy_field }}
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    <button class="btn js-add-new-answer" aria-label="Add new answer option" aria-describedby="add-answer-desc">Add</button>
+    <span id="add-answer-desc" class="sr-only">Adds a new blank answer field to the list of answers.</span>
+  </fieldset>
+  <div class="flex gap-2 mt-4">
+    <button type="submit" class="btn btn-primary">Save</button>
+    {% if object %}
+    <a
+      href="{% url 'flashcards:flashcard-detail' pk=object.pk %}"
+      class="btn btn-outline"
+      >Cancel</a
+    >
+    {% endif %}
+  </div>
+</form>
+
+<!-- This is a hidden template for creating new answer elements -->
+<template id="answer-template">
+  <div class="flex items-center gap-3 mb-3 js-answer-element">
+    <label class="flex items-center cursor-pointer select-none">
+      {{ formset.empty_form.is_correct }}
+    </label>
+    <div class="flex-1">
+      {{ formset.empty_form.text|as_crispy_field }}
+    </div>
+  <button type="button" class="btn btn-error btn-xs js-remove-answer" aria-label="Remove answer">&times;</button>
+  </div>
+</template>
+
+
+<script src="{% static 'js/flashcard-form.js' %}"></script>

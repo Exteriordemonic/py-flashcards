@@ -1,6 +1,8 @@
 import random
 
 from django import forms
+from django.forms import formset_factory
+
 
 from flashcards.models import Flashcard, Answer
 
@@ -9,9 +11,17 @@ class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
         fields = [
-            "text",
             "is_correct",
+            "text",
         ]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        # Formset rows may be left blank; we only persist rows with non-empty text in the view.
+        self.fields["text"].required = False
+
+
+AnswerFormSet = formset_factory(AnswerForm, extra=1)
 
 
 class FlashcardForm(forms.ModelForm):
