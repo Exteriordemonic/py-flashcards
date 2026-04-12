@@ -7,7 +7,6 @@ from django.views.generic.base import TemplateView
 
 from decks.models import Deck
 
-from flashcards.constants import FLASHCARD_DUPLICATE_ERROR
 from flashcards.forms import (
     AnswerFormSet,
     FlashcardForm,

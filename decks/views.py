@@ -1,12 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 from django.db.models import Count
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
 
-from flashcards.constants import FLASHCARD_DUPLICATE_ERROR
-from flashcards.forms import FlashcardDeckForm, AnswerFormSet, FlashcardForm
+from flashcards.forms import FlashcardDeckForm, AnswerFormSet
 from flashcards.services import FlashcardService, AnswerInput
 
 from decks.forms import DeckForm
