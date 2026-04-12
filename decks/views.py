@@ -18,12 +18,7 @@ class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
     template_name = "decks/deck_list.html"
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .annotate(flashcards_count=Count("flashcards"))
-            .only("id", "name", "owner")
-        )
+        return super().get_queryset().annotate(flashcards_count=Count("flashcards")).only("id", "name", "owner")
 
 
 class DeckDetailView(LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView):
@@ -31,23 +26,14 @@ class DeckDetailView(LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView)
     template_name = "decks/deck_detail.html"
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related("flashcards")
-            .only("name", "flashcards__question")
-        )
+        return super().get_queryset().prefetch_related("flashcards").only("name", "flashcards__question")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["flashcards"] = self.object.flashcards.filter(
-            created_by=self.request.user
-        )
+        context["flashcards"] = self.object.flashcards.filter(created_by=self.request.user)
 
-        context["form_create_flashcard"] = kwargs.get(
-            "form_create_flashcard", FlashcardDeckForm()
-        )
+        context["form_create_flashcard"] = kwargs.get("form_create_flashcard", FlashcardDeckForm())
 
         return context
 

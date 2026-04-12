@@ -26,18 +26,14 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
         )
 
 
-class FlashcardDetailView(
-    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView
-):
+class FlashcardDetailView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView):
     model = Flashcard
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related("answers")
 
 
-class FlashcardUpdateView(
-    LoginRequiredMixin, CreatedByQuerysetMixin, generic.UpdateView
-):
+class FlashcardUpdateView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.UpdateView):
     model = Flashcard
     form_class = FlashcardForm
 
@@ -70,16 +66,12 @@ class FlashcardCreateView(LoginRequiredMixin, generic.CreateView):
             return self.form_invalid(form)
 
 
-class FlashcardDeleteView(
-    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DeleteView
-):
+class FlashcardDeleteView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.DeleteView):
     model = Flashcard
     success_url = reverse_lazy("flashcards:flashcard-list")
 
 
-class FlashcardReviewView(
-    LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView
-):
+class FlashcardReviewView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.DetailView):
     model = Flashcard
     template_name = "flashcards/flashcard_review.html"
 
@@ -103,9 +95,7 @@ class FlashcardReviewView(
         feedback_message = ""
         if form.is_valid():
             selected_answer = form.cleaned_data["selected_answer"]
-            is_correct = self.object.answers.filter(
-                text=selected_answer, is_correct=True
-            ).exists()
+            is_correct = self.object.answers.filter(text=selected_answer, is_correct=True).exists()
             feedback_message = "Correct answer!" if is_correct else "Incorrect answer."
 
             Review.objects.create(
@@ -114,9 +104,7 @@ class FlashcardReviewView(
                 quality=(Review.Quality.PERFECT if is_correct else Review.Quality.HARD),
             )
 
-        correct_answer_texts = list(
-            self.object.answers.filter(is_correct=True).values_list("text", flat=True)
-        )
+        correct_answer_texts = list(self.object.answers.filter(is_correct=True).values_list("text", flat=True))
 
         context = self.get_context_data()
         context["form"] = form

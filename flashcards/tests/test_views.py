@@ -94,16 +94,12 @@ def test_deck_create_view_creates_object(client_as_view_user, view_user):
 
 
 def test_deck_delete_view_deletes_object(client_as_view_user, view_deck):
-    response = client_as_view_user.post(
-        reverse("decks:deck-delete", kwargs={"pk": view_deck.id})
-    )
+    response = client_as_view_user.post(reverse("decks:deck-delete", kwargs={"pk": view_deck.id}))
     assert response.status_code == 302
     assert not Deck.objects.filter(id=view_deck.id).exists()
 
 
-def test_flashcard_list_shows_only_current_user_flashcards(
-    client_as_view_user, view_user, view_user2, view_flashcard
-):
+def test_flashcard_list_shows_only_current_user_flashcards(client_as_view_user, view_user, view_user2, view_flashcard):
     Flashcard.objects.create(
         question="Question owned by user2",
         deck=Deck.objects.create(name="User2 Deck", owner=view_user2),
@@ -116,9 +112,7 @@ def test_flashcard_list_shows_only_current_user_flashcards(
     assert b"Question owned by user2" not in response.content
 
 
-def test_flashcard_list_show_correct_data_for_decks(
-    client_as_view_user, view_user, view_deck
-):
+def test_flashcard_list_show_correct_data_for_decks(client_as_view_user, view_user, view_deck):
     Flashcard.objects.create(
         question="Second question in same deck",
         deck=view_deck,
@@ -137,18 +131,14 @@ def test_deck_detail_view_that_is_not_owner(client, view_user2, view_deck):
     assert response.status_code == 404
 
 
-def test_deck_show_only_owner_flashcards_on_deck(
-    client_as_view_user, view_user, view_user2, view_deck
-):
+def test_deck_show_only_owner_flashcards_on_deck(client_as_view_user, view_user, view_user2, view_deck):
     Flashcard.objects.create(
         question="Question for user 2",
         deck=view_deck,
         created_by=view_user2,
     )
 
-    response = client_as_view_user.get(
-        reverse("decks:deck-detail", kwargs={"pk": view_deck.id})
-    )
+    response = client_as_view_user.get(reverse("decks:deck-detail", kwargs={"pk": view_deck.id}))
     assert response.status_code == 200
     assert "Question for user 2" not in response.content.decode()
 
@@ -207,9 +197,7 @@ def test_review_view_displays_question_and_options(client_review, review_flashca
     assert "Prague" in content
 
 
-def test_review_view_allows_answer_submission_and_feedback(
-    client_review, review_flashcard
-):
+def test_review_view_allows_answer_submission_and_feedback(client_review, review_flashcard):
     url = reverse("flashcards:flashcard-review", kwargs={"pk": review_flashcard.id})
 
     response = client_review.post(url, {"selected_answer": "Warsaw"})
@@ -224,11 +212,7 @@ def test_review_view_allows_answer_submission_and_feedback(
 def test_review_created_after_post(client_review, review_user, review_flashcard):
     url = reverse("flashcards:flashcard-review", args=[review_flashcard.id])
 
-    correct_text = (
-        review_flashcard.answers.filter(is_correct=True)
-        .values_list("text", flat=True)
-        .first()
-    )
+    correct_text = review_flashcard.answers.filter(is_correct=True).values_list("text", flat=True).first()
     client_review.post(url, data={"selected_answer": correct_text})
 
     assert Review.objects.count() == 1

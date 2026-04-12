@@ -29,9 +29,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255)),
                 (
                     "members",
-                    models.ManyToManyField(
-                        related_name="decks_member", to=settings.AUTH_USER_MODEL
-                    ),
+                    models.ManyToManyField(related_name="decks_member", to=settings.AUTH_USER_MODEL),
                 ),
                 (
                     "owner",
@@ -75,9 +73,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "deck",
-                    models.ManyToManyField(
-                        related_name="flashcards", to="flashcards.deck"
-                    ),
+                    models.ManyToManyField(related_name="flashcards", to="flashcards.deck"),
                 ),
             ],
         ),
@@ -168,14 +164,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name="deck",
-            constraint=models.UniqueConstraint(
-                fields=("name", "owner"), name="unique_deck_user_name"
-            ),
+            constraint=models.UniqueConstraint(fields=("name", "owner"), name="unique_deck_user_name"),
         ),
         migrations.AddConstraint(
             model_name="flashcarduserstate",
-            constraint=models.UniqueConstraint(
-                fields=("flashcard", "user"), name="unique_flashcard_user_state"
-            ),
+            constraint=models.UniqueConstraint(fields=("flashcard", "user"), name="unique_flashcard_user_state"),
         ),
     ]

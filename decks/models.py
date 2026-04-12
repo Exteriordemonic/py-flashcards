@@ -19,7 +19,7 @@ class Deck(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="decks")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:

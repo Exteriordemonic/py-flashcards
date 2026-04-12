@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="flashcard",
             name="deck",
-            field=models.ManyToManyField(
-                blank=True, related_name="flashcards", to="flashcards.deck"
-            ),
+            field=models.ManyToManyField(blank=True, related_name="flashcards", to="flashcards.deck"),
         ),
     ]

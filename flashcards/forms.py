@@ -38,12 +38,10 @@ class FlashcardReviewForm(forms.Form):
         label="Choose Answer",
     )
 
-    def __init__(self, *args, flashcard=None, **kwargs):
+    def __init__(self, *args, flashcard=None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if flashcard:
-            texts = list(
-                flashcard.answers.order_by("pk").values_list("text", flat=True)
-            )
+            texts = list(flashcard.answers.order_by("pk").values_list("text", flat=True))
             choices = [(t, t) for t in texts]
 
             # Shuffle only on initial display (GET). Keep stable order on POST.

@@ -33,9 +33,7 @@ def test_flashcard_list_is_resolved(client_as_user):
 def test_flashcard_detail_is_resolved(client_as_user, user):
     flashcard = make_flashcard_with_answers(user)
 
-    response = client_as_user.get(
-        reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
-    )
+    response = client_as_user.get(reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id}))
     assert response.status_code == 200
 
 
@@ -47,18 +45,14 @@ def test_flashcard_create_is_resolved(client_as_user):
 def test_flashcard_update_is_resolved(client_as_user, user):
     flashcard = make_flashcard_with_answers(user)
 
-    response = client_as_user.get(
-        reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
-    )
+    response = client_as_user.get(reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id}))
     assert response.status_code == 200
 
 
 def test_flashcard_delete_is_resolved(client_as_user, user):
     flashcard = make_flashcard_with_answers(user)
 
-    response = client_as_user.get(
-        reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
-    )
+    response = client_as_user.get(reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id}))
     assert response.status_code == 200
 
 
@@ -144,9 +138,7 @@ def test_redirect_if_user_tries_to_view_not_owned_flashcard(client, user, user2)
     flashcard = make_flashcard_with_answers(user)
 
     client.force_login(user2)
-    response = client.get(
-        reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id})
-    )
+    response = client.get(reverse("flashcards:flashcard-detail", kwargs={"pk": flashcard.id}))
 
     assert response.status_code == 404
 
@@ -155,9 +147,7 @@ def test_redirect_if_user_tries_to_update_not_owned_flashcard(client, user, user
     flashcard = make_flashcard_with_answers(user)
 
     client.force_login(user2)
-    response = client.get(
-        reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id})
-    )
+    response = client.get(reverse("flashcards:flashcard-update", kwargs={"pk": flashcard.id}))
 
     assert response.status_code == 404
 
@@ -166,9 +156,7 @@ def test_redirect_if_user_tries_to_delete_not_owned_flashcard(client, user, user
     flashcard = make_flashcard_with_answers(user)
 
     client.force_login(user2)
-    response = client.get(
-        reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id})
-    )
+    response = client.get(reverse("flashcards:flashcard-delete", kwargs={"pk": flashcard.id}))
 
     assert response.status_code == 404
 
@@ -176,9 +164,7 @@ def test_redirect_if_user_tries_to_delete_not_owned_flashcard(client, user, user
 def test_review_flashcard(client_as_user, user):
     flashcard = make_flashcard_with_answers(user)
 
-    response = client_as_user.get(
-        reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
-    )
+    response = client_as_user.get(reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id}))
 
     assert response.status_code == 200
 
@@ -188,8 +174,6 @@ def test_review_flashcard_without_access_returns_404(client, user, user2):
 
     client.force_login(user2)
 
-    response = client.get(
-        reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id})
-    )
+    response = client.get(reverse("flashcards:flashcard-review", kwargs={"pk": flashcard.id}))
 
     assert response.status_code == 404

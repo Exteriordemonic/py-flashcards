@@ -25,13 +25,9 @@ def copy_m2m_decks_to_fk(apps, schema_editor):
             owner_id = fallback_user.id
 
         if owner_id is None:
-            raise RuntimeError(
-                "Cannot migrate flashcard without deck: no owner user exists."
-            )
+            raise RuntimeError("Cannot migrate flashcard without deck: no owner user exists.")
 
-        fallback_deck, _ = Deck.objects.get_or_create(
-            name="Migrated Deck", owner_id=owner_id
-        )
+        fallback_deck, _ = Deck.objects.get_or_create(name="Migrated Deck", owner_id=owner_id)
         flashcard.deck_fk_id = fallback_deck.id
         flashcard.save(update_fields=["deck_fk"])
 

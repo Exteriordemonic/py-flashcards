@@ -10,5 +10,7 @@ exclude =
 per-file-ignores =
     */settings/*.py:F401,F403,E501
 inline-quotes = double
+ignore = ANN002,ANN001,ANN201, ANN003, ANN101
+
 
     

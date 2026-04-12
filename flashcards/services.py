@@ -33,9 +33,7 @@ class FlashcardService:
             if not isinstance(deck, Deck):
                 deck, _ = Deck.objects.get_or_create(name=deck, owner=created_by)
 
-            flashcard = Flashcard.objects.create(
-                question=question, created_by=created_by, deck=deck
-            )
+            flashcard = Flashcard.objects.create(question=question, created_by=created_by, deck=deck)
 
             Answer.objects.bulk_create(
                 [

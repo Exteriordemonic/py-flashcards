@@ -105,10 +105,7 @@ def test_data_without_answers(flashcard_create_data):
 def test_data_without_correct_answers(flashcard_create_data):
     data = {
         **flashcard_create_data,
-        "answers": [
-            AnswerInput(text=a.text, is_correct=False)
-            for a in flashcard_create_data["answers"]
-        ],
+        "answers": [AnswerInput(text=a.text, is_correct=False) for a in flashcard_create_data["answers"]],
     }
 
     with pytest.raises(ValueError):
@@ -118,10 +115,7 @@ def test_data_without_correct_answers(flashcard_create_data):
 def test_all_correct_answers(flashcard_create_data):
     data = {
         **flashcard_create_data,
-        "answers": [
-            AnswerInput(text=a.text, is_correct=True)
-            for a in flashcard_create_data["answers"]
-        ],
+        "answers": [AnswerInput(text=a.text, is_correct=True) for a in flashcard_create_data["answers"]],
     }
 
     flashcard = FlashcardService.create_flashcard(**data)

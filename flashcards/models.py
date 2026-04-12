@@ -60,9 +60,7 @@ class FlashcardUserState(models.Model):
         on_delete=models.CASCADE,
         related_name="flashcard_states",
     )
-    user = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, related_name="flashcard_states"
-    )
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="flashcard_states")
     ease_factor = models.FloatField(default=2.5)
     next_review_at = models.DateField()
     last_reviewed_at = models.DateTimeField(null=True, blank=True)
@@ -118,8 +116,6 @@ class Answer(models.Model):
         is_correct (BooleanField): Whether this is the correct answer.
     """
 
-    flashcard = models.ForeignKey(
-        Flashcard, on_delete=models.CASCADE, related_name="answers"
-    )
+    flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE, related_name="answers")
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
