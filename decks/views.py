@@ -26,9 +26,7 @@ class DeckListView(LoginRequiredMixin, OwnerQuerysetMixin, generic.ListView):
         )
 
 
-class DeckDetailView(
-    LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView
-):
+class DeckDetailView(LoginRequiredMixin, OwnerQuerysetMixin, generic.DetailView):
     model = Deck
     template_name = "decks/deck_detail.html"
 
@@ -76,9 +74,7 @@ class DeckDetailView(
         return self.render_to_response(context)
 
 
-class DeckUpdateView(
-    LoginRequiredMixin, OwnerQuerysetMixin, generic.UpdateView
-):
+class DeckUpdateView(LoginRequiredMixin, OwnerQuerysetMixin, generic.UpdateView):
     model = Deck
     form_class = DeckForm
     template_name = "decks/deck_form.html"

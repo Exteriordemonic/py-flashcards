@@ -2,7 +2,16 @@ import random
 
 from django import forms
 
-from flashcards.models import Flashcard
+from flashcards.models import Flashcard, Answer
+
+
+class AnswerForm(forms.ModelForm):
+    class Meta:
+        model = Answer
+        fields = [
+            "text",
+            "is_correct",
+        ]
 
 
 class FlashcardForm(forms.ModelForm):

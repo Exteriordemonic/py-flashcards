@@ -7,13 +7,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flashcards', '0006_alter_flashcard_deck'),
+        ("flashcards", "0006_alter_flashcard_deck"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='flashcard',
-            constraint=models.UniqueConstraint(fields=('question', 'created_by', 'deck'), name='unique_flashcard_created_by_question_deck'),
+            model_name="flashcard",
+            constraint=models.UniqueConstraint(
+                fields=("question", "created_by", "deck"),
+                name="unique_flashcard_created_by_question_deck",
+            ),
         ),
     ]

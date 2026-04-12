@@ -133,9 +133,7 @@ def test_flashcard_list_show_correct_data_for_decks(
 def test_deck_detail_view_that_is_not_owner(client, view_user2, view_deck):
     client.force_login(view_user2)
 
-    response = client.get(
-        reverse("decks:deck-detail", kwargs={"pk": view_deck.id})
-    )
+    response = client.get(reverse("decks:deck-detail", kwargs={"pk": view_deck.id}))
     assert response.status_code == 404
 
 
@@ -198,9 +196,7 @@ def test_review_view_flashcard_without_answers(client_review, review_user):
 
 
 def test_review_view_displays_question_and_options(client_review, review_flashcard):
-    url = reverse(
-        "flashcards:flashcard-review", kwargs={"pk": review_flashcard.id}
-    )
+    url = reverse("flashcards:flashcard-review", kwargs={"pk": review_flashcard.id})
     response = client_review.get(url)
     assert response.status_code == 200
     content = response.content.decode()
@@ -214,9 +210,7 @@ def test_review_view_displays_question_and_options(client_review, review_flashca
 def test_review_view_allows_answer_submission_and_feedback(
     client_review, review_flashcard
 ):
-    url = reverse(
-        "flashcards:flashcard-review", kwargs={"pk": review_flashcard.id}
-    )
+    url = reverse("flashcards:flashcard-review", kwargs={"pk": review_flashcard.id})
 
     response = client_review.post(url, {"selected_answer": "Warsaw"})
     assert response.status_code == 200
@@ -230,9 +224,11 @@ def test_review_view_allows_answer_submission_and_feedback(
 def test_review_created_after_post(client_review, review_user, review_flashcard):
     url = reverse("flashcards:flashcard-review", args=[review_flashcard.id])
 
-    correct_text = review_flashcard.answers.filter(is_correct=True).values_list(
-        "text", flat=True
-    ).first()
+    correct_text = (
+        review_flashcard.answers.filter(is_correct=True)
+        .values_list("text", flat=True)
+        .first()
+    )
     client_review.post(url, data={"selected_answer": correct_text})
 
     assert Review.objects.count() == 1

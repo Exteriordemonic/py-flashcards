@@ -88,3 +88,7 @@ def test_invalid_choice(form_flashcard):
 
     assert not form.is_valid()
     assert "selected_answer" in form.errors
+
+
+def test_create_flashcard_from():
+    pass

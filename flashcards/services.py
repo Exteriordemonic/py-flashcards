@@ -31,9 +31,7 @@ class FlashcardService:
 
         with transaction.atomic():
             if not isinstance(deck, Deck):
-                deck, _ = Deck.objects.get_or_create(
-                    name=deck, owner=created_by
-                )
+                deck, _ = Deck.objects.get_or_create(name=deck, owner=created_by)
 
             flashcard = Flashcard.objects.create(
                 question=question, created_by=created_by, deck=deck

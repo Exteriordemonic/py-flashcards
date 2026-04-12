@@ -125,9 +125,7 @@ def test_all_correct_answers(flashcard_create_data):
     }
 
     flashcard = FlashcardService.create_flashcard(**data)
-    assert flashcard.answers.filter(is_correct=True).count() == len(
-        data["answers"]
-    )
+    assert flashcard.answers.filter(is_correct=True).count() == len(data["answers"])
 
 
 def test_multiple_correct_answers(flashcard_create_data):
@@ -141,9 +139,7 @@ def test_multiple_correct_answers(flashcard_create_data):
         ],
     }
 
-    correct_answers = len(
-        [answer for answer in data["answers"] if answer.is_correct]
-    )
+    correct_answers = len([answer for answer in data["answers"] if answer.is_correct])
 
     flashcard = FlashcardService.create_flashcard(**data)
     assert flashcard.answers.filter(is_correct=True).count() == correct_answers

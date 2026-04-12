@@ -6,20 +6,15 @@ User = get_user_model()
 
 class Flashcard(models.Model):
     """
-    Example of how to create a Flashcard object:
-        Flashcard.objects.create(
-            question="Question text",
-            deck=deck,
-            created_by=user
-        )
+    Represents a flashcard in the system. The combination of question,
+    created_by, and deck must be unique per flashcard.
 
-    Fields:
-        question : str — the flashcard question (required)
-        deck : Deck — the deck to which this flashcard belongs (required)
-        created_by : User — the user who created this flashcard (optional)
-
-    Note: The combination of question, created_by,
-    and deck must be unique per flashcard.
+    Attributes:
+        question (CharField): The flashcard question.
+        created_at (DateTimeField): When the flashcard was created.
+        updated_at (DateTimeField): When the flashcard was last updated.
+        deck (ForeignKey): The deck this flashcard belongs to.
+        created_by (ForeignKey): The user who created this flashcard, if any.
     """
 
     question = models.CharField(max_length=255)
@@ -49,9 +44,15 @@ class Flashcard(models.Model):
 
 class FlashcardUserState(models.Model):
     """
-    # FlashcardUserState tracks user progress on each card.
-    # 'ease_factor' is recall ease; higher values mean longer gaps
-    # between reviews.
+    Represents per-user spaced-repetition state for a flashcard. The ease_factor
+    reflects recall ease; higher values imply longer gaps between reviews.
+
+    Attributes:
+        flashcard (ForeignKey): The flashcard being tracked.
+        user (ForeignKey): The learner whose progress is stored.
+        ease_factor (FloatField): Recall ease; default 2.5.
+        next_review_at (DateField): When the card is due for review.
+        last_reviewed_at (DateTimeField): When the user last reviewed, if ever.
     """
 
     flashcard = models.ForeignKey(
@@ -77,8 +78,13 @@ class FlashcardUserState(models.Model):
 
 class Review(models.Model):
     """
-    # Review model: records when and how well a user reviewed a flashcard.
-    # Captures user, flashcard, review quality, and review date.
+    Represents a single review event: when and how well a user rated a flashcard.
+
+    Attributes:
+        flashcard (ForeignKey): The flashcard that was reviewed.
+        user (ForeignKey): The user who performed the review.
+        quality (IntegerField): Self-reported difficulty using Quality choices.
+        reviewed_at (DateTimeField): When the review was recorded.
     """
 
     class Quality(models.IntegerChoices):
@@ -93,9 +99,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name="reviews",
     )
-    user = models.ForeignKey(
-        to=User, on_delete=models.CASCADE, related_name="reviews"
-    )
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="reviews")
     quality = models.IntegerField(choices=Quality.choices)
     reviewed_at = models.DateTimeField(auto_now_add=True)
 
@@ -104,6 +108,16 @@ class Review(models.Model):
 
 
 class Answer(models.Model):
+    """
+    Represents one answer option for a flashcard. Each flashcard should have
+    exactly one answer marked as correct.
+
+    Attributes:
+        flashcard (ForeignKey): The flashcard this answer belongs to.
+        text (CharField): The answer text (max 255 characters).
+        is_correct (BooleanField): Whether this is the correct answer.
+    """
+
     flashcard = models.ForeignKey(
         Flashcard, on_delete=models.CASCADE, related_name="answers"
     )

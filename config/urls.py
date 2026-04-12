@@ -23,7 +23,6 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 
 from flashcards.views import HomeView
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", HomeView.as_view(), name="home"),

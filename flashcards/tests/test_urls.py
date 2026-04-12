@@ -70,9 +70,7 @@ def test_deck_list_is_resolved(client_as_user):
 def test_deck_detail_is_resolved(client_as_user, user):
     deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-    response = client_as_user.get(
-        reverse("decks:deck-detail", kwargs={"pk": deck.id})
-    )
+    response = client_as_user.get(reverse("decks:deck-detail", kwargs={"pk": deck.id}))
     assert response.status_code == 200
 
 
@@ -84,18 +82,14 @@ def test_deck_create_is_resolved(client_as_user):
 def test_deck_update_is_resolved(client_as_user, user):
     deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-    response = client_as_user.get(
-        reverse("decks:deck-update", kwargs={"pk": deck.id})
-    )
+    response = client_as_user.get(reverse("decks:deck-update", kwargs={"pk": deck.id}))
     assert response.status_code == 200
 
 
 def test_deck_delete_is_resolved(client_as_user, user):
     deck = Deck.objects.create(name="Example Deck 1", owner=user)
 
-    response = client_as_user.get(
-        reverse("decks:deck-delete", kwargs={"pk": deck.id})
-    )
+    response = client_as_user.get(reverse("decks:deck-delete", kwargs={"pk": deck.id}))
     assert response.status_code == 200
 
 
