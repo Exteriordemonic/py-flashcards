@@ -61,9 +61,7 @@ class FlashcardUpdateView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.Up
         answers = [AnswerInput(**answer) for answer in formset.cleaned_data if answer]
 
         try:
-            self.object = FlashcardService.update_flashcard(
-                self.object, question=question, deck=deck, answers=answers
-            )
+            self.object = FlashcardService.update_flashcard(self.object, question=question, deck=deck, answers=answers)
         except (ValueError, IntegrityError) as e:
             form.add_error(None, e)
             return self.form_invalid(form)
@@ -133,9 +131,6 @@ class FlashcardReviewView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.De
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = FlashcardReviewForm(flashcard=self.object)
-        context["correct_answer_texts"] = list(
-            self.object.answers.filter(is_correct=True).values_list("text", flat=True)
-        )
 
         return context
 
