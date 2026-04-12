@@ -1,14 +1,13 @@
 erDiagram
-    USER ||--o{ FLASHCARD : "created_by (nullable)"
+    USER ||--o{ FLASHCARD : "created_by (SET_NULL, nullable)"
     USER ||--o{ REVIEW : "reviews"
-    USER ||--o{ FLASHCARD_USER_STATE : "tracks"
-    USER ||--o{ DECK : "owns"
+    USER ||--o{ FLASHCARD_USER_STATE : "flashcard_states"
+    USER ||--o{ DECK : "decks"
 
-    DECK ||--o{ FLASHCARD : "contains"
-    FLASHCARD ||--o{ REVIEW : "reviewed_in"
-    FLASHCARD ||--o{ FLASHCARD_USER_STATE : "state_for"
-
-    DECK ||--o{ REVIEW : "review_context (nullable)"
+    DECK ||--o{ FLASHCARD : "flashcards"
+    FLASHCARD ||--o{ ANSWER : "answers"
+    FLASHCARD ||--o{ REVIEW : "reviews"
+    FLASHCARD ||--o{ FLASHCARD_USER_STATE : "flashcard_states"
 
     USER {
         int id PK
@@ -25,22 +24,23 @@ erDiagram
     FLASHCARD {
         int id PK
         string question
-        string answer_a
-        string answer_b
-        string answer_c
-        string answer_d
-        string correct_answer
         datetime created_at
         datetime updated_at
         int deck_id FK
         int created_by_id FK nullable
     }
 
+    ANSWER {
+        int id PK
+        string text
+        bool is_correct
+        int flashcard_id FK
+    }
+
     REVIEW {
         int id PK
         int flashcard_id FK
         int user_id FK
-        int deck_id FK nullable
         int quality
         datetime reviewed_at
     }
@@ -57,3 +57,6 @@ erDiagram
 %% Review.quality: IntegerChoices — 1 Hard, 2 Normal, 3 Easy, 4 Very Easy, 5 Perfect
 %% UniqueConstraint FLASHCARD_USER_STATE (flashcard_id, user_id) name unique_flashcard_user_state
 %% UniqueConstraint DECK (name, owner_id) name unique_deck_user_name
+%% UniqueConstraint FLASHCARD (question, created_by_id, deck_id) name unique_flashcard_created_by_question_deck
+%% User: Django AbstractUser (AUTH_USER_MODEL) — m.in. password, is_active, imię/nazwisko
+%% Table decks.Deck → db_table flashcards_deck (historyczna nazwa)
