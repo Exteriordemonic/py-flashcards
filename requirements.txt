@@ -31,6 +31,7 @@ packaging==26.0
 pathspec==1.0.4
 platformdirs==4.9.6
 pluggy==1.6.0
+psycopg2-binary==2.9.11
 Pygments==2.20.0
 pytailwindcss==0.3.0
 pytest==9.0.3
