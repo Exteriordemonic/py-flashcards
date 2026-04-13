@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from flashcards.models import Answer, Flashcard
+
+admin.site.register(Flashcard)
+admin.site.register(Answer)

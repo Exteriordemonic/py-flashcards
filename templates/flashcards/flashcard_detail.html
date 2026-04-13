@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Flashcard</h1>
+    <a href="{% url 'flashcards:flashcard-list' %}" class="btn btn-outline btn-sm">Back</a>
+  </header>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto max-w-lg px-4">
+  <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
+    <div class="card-body">
+      <div class="mb-6">
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Question</div>
+        <div class="text-xl font-bold text-base-content mb-6">{{ object.question }}</div>
+        <div class="divider"></div>
+        <div class="text-lg font-semibold text-base-content/80 mb-2">Answers</div>
+        <ul class="list-none space-y-2 mb-4">
+          {% for answer in object.answers.all %}
+            <li class="text-base-content {% if answer.is_correct %}font-semibold text-success{% endif %}">
+              {{ answer.text }}{% if answer.is_correct %} (correct){% endif %}
+            </li>
+          {% empty %}
+            <li class="text-base-content/60">No answers yet. Add them in the admin.</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="flex gap-2">
+        <a href="{% url 'flashcards:flashcard-update' pk=object.id %}" class="btn btn-primary btn-sm">Update</a>
+        <a href="{% url 'flashcards:flashcard-delete' pk=object.id %}" class="btn btn-error btn-sm">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

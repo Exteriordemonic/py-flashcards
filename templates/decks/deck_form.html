@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block header %}
+  <header class="w-full flex items-center justify-between px-4 py-6 bg-base-200 border-b border-base-content/10 mb-4">
+    <h1 class="text-3xl font-bold">Deck</h1>
+    <a href="{% url 'decks:deck-list' %}" class="btn btn-outline btn-sm">Back</a>
+  </header>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto max-w-lg px-4">
+  <div class="card bg-base-100 shadow-md border border-base-content/10 mt-8">
+    <div class="card-body">
+      <form method="post" class="flex flex-col gap-6">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">Save</button>
+          {% if object %}
+            <a href="{% url 'decks:deck-detail' pk=object.pk %}" class="btn btn-outline">Cancel</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
