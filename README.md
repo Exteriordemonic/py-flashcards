@@ -8,6 +8,8 @@
 
 **py-flashcards** is a learning tool: you organize cards into decks, each card has a question and several answers (exactly one correct), and your progress is tracked with per-user review state and review history. The UI uses Tailwind CSS and Crispy Forms with the Tailwind pack.
 
+**Live site:** [http://flashcards.miroszdevelopment.pl/](http://flashcards.miroszdevelopment.pl/)
+
 ## Installing / Getting started
 
 Minimal steps to run the site locally with SQLite (default).
