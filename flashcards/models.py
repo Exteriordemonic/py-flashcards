@@ -55,12 +55,12 @@ class FlashcardUserState(models.Model):
         last_reviewed_at (DateTimeField): When the user last reviewed, if ever.
     """
 
-    flashcard = models.ForeignKey(
+    flashcard = models.OneToOneField(
         to=Flashcard,
         on_delete=models.CASCADE,
-        related_name="flashcard_states",
+        related_name="flashcard_state",
     )
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="flashcard_states")
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="flashcard_state")
     ease_factor = models.FloatField(default=2.5)
     next_review_at = models.DateField()
     last_reviewed_at = models.DateTimeField(null=True, blank=True)

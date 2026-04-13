@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from datetime import datetime, timedelta
 
 
-from flashcards.models import Flashcard, Answer
+from flashcards.models import Flashcard, Answer, FlashcardUserState
 from decks.models import Deck
 
 User = get_user_model()
@@ -76,3 +77,15 @@ class FlashcardService:
                 ]
             )
         return flashcard
+
+    @staticmethod
+    def review_flashcard(
+        flashcard: Flashcard,
+    ) -> FlashcardUserState:
+
+        FlashcardUserState.objects.get_or_create(
+            flashcard=flashcard,
+            user=flashcard.created_by,
+            next_review_at=datetime.now().date() + timedelta(days=1),
+            last_reviewed_at=datetime.now(),
+        )

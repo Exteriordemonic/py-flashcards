@@ -19,6 +19,7 @@
             <th></th>
             <th>Question</th>
             <th>Deck</th>
+            <th>Next Review</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -34,6 +35,9 @@
                 {% else %}
                   -
                 {% endif %}
+              </td>
+              <td>
+                {{ flashcard.flashcard_state.next_review_at }}
               </td>
               <td>
                 <a href="{% url 'flashcards:flashcard-review' pk=flashcard.id %}" class="btn btn-secondary btn-xs">

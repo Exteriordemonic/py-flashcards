@@ -21,10 +21,12 @@ class FlashcardListView(LoginRequiredMixin, generic.ListView):
     model = Flashcard
 
     def get_queryset(self):
+
         return (
             Flashcard.objects.filter(created_by=self.request.user)
-            .select_related("deck")
-            .only("question", "deck_id", "deck__name")
+            .select_related("deck", "flashcard_state")
+            .only("question", "deck_id", "deck__name", "flashcard_state__next_review_at")
+            .order_by("-flashcard_state__next_review_at")
         )
 
 
@@ -150,6 +152,8 @@ class FlashcardReviewView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.De
                 user=self.request.user,
                 quality=(Review.Quality.PERFECT if is_correct else Review.Quality.HARD),
             )
+
+            FlashcardService.review_flashcard(flashcard=self.object)
 
         correct_answer_texts = list(self.object.answers.filter(is_correct=True).values_list("text", flat=True))
 
