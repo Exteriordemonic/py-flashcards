@@ -2,10 +2,12 @@ from collections import Counter
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import transaction
+
 
 from decks.models import Deck
-from flashcards.models import Flashcard
-from flashcards.services import AnswerInput, FlashcardService
+from flashcards.models import Flashcard, Review
+from flashcards.services import AnswerInput, FlashcardService, RepetitionService
 
 User = get_user_model()
 
@@ -31,6 +33,16 @@ def flashcard_create_data(user, deck):
         "deck": deck,
         "answers": make_answers(),
     }
+
+
+@pytest.fixture
+def flashcard(flashcard_create_data):
+    return FlashcardService.create_flashcard(**flashcard_create_data)
+
+
+@pytest.fixture
+def flashcard_user_state(flashcard):
+    return FlashcardService.get_or_create_flashcard_user_state(flashcard)
 
 
 def make_answers():
@@ -146,3 +158,81 @@ def test_no_flashcard_created_when_answers_none(flashcard_create_data):
         FlashcardService.create_flashcard(**data)
 
     assert Flashcard.objects.count() == 0
+
+
+def test_update_flashcard_happy_path(flashcard):
+    # Arrange
+    answers = [
+        AnswerInput("Asnwer 1"),
+        AnswerInput("Asnwer 2"),
+        AnswerInput("Asnwer 3"),
+        AnswerInput("Asnwer 4", True),
+    ]
+
+    # Act
+    flashcard = FlashcardService.update_flashcard(flashcard=flashcard, answers=answers)
+
+    # Assert
+    assert flashcard.answers.count() == 4
+    assert flashcard.answers.filter(is_correct=True).count() == 1
+
+    texts = list(flashcard.answers.order_by("pk").values_list("text", flat=True))
+    assert texts == ["Asnwer 1", "Asnwer 2", "Asnwer 3", "Asnwer 4"]
+
+
+def test_update_flashcard_with_deck(flashcard):
+    # Arrange
+    deck = Deck.objects.create(name="Deck Name 2", owner=flashcard.created_by)
+
+    # Act
+    flashcard = FlashcardService.update_flashcard(flashcard=flashcard, deck=deck)
+
+    # Assert
+    assert flashcard.deck == deck
+
+
+def test_update_flashcard_with_(flashcard):
+    # Arrange
+    question = "What is the capital of France?"
+
+    # Act
+    flashcard = FlashcardService.update_flashcard(flashcard=flashcard, question=question)
+
+    # Assert
+    assert flashcard.question == question
+
+
+def test_update_flashcard_with_incorrect_answers(flashcard):
+    # Arrange
+    answers = []
+
+    # Act + Assert
+    with pytest.raises(ValueError, match="Answers are required"):
+        FlashcardService.update_flashcard(flashcard=flashcard, answers=answers)
+
+
+def test_create_review_happy_path(flashcard):
+    # Arrange
+    quality = Review.Quality.PERFECT
+
+    # Act
+    FlashcardService.create_review(flashcard=flashcard, quality=quality)
+    FlashcardService.create_review(flashcard=flashcard, quality=quality)
+    FlashcardService.create_review(flashcard=flashcard, quality=quality)
+
+    # Assert
+    assert Review.objects.filter(flashcard=flashcard).count() == 3
+    assert Review.objects.last().quality == quality
+
+
+@pytest.mark.django_db(transaction=True)
+def test_create_review_no_quality(flashcard):
+    # Arrange
+    quality = None
+
+    # Act + Assert
+    with pytest.raises(Exception):
+        FlashcardService.create_review(flashcard=flashcard, quality=quality)
+
+    # Assert
+    assert Review.objects.filter(flashcard=flashcard).count() == 0

@@ -62,8 +62,8 @@ class FlashcardUserState(models.Model):
     )
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="flashcard_state")
     ease_factor = models.FloatField(default=2.5)
-    next_review_at = models.DateField()
-    last_reviewed_at = models.DateTimeField(null=True, blank=True)
+    next_review_at = models.DateField(null=True, blank=True)
+    last_reviewed_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [

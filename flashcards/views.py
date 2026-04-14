@@ -15,6 +15,7 @@ from flashcards.forms import (
 from flashcards.mixins import CreatedByQuerysetMixin
 from flashcards.models import Flashcard, Review
 from flashcards.services import FlashcardService, AnswerInput
+from flashcards.tests.test_service import flashcard
 
 
 class FlashcardListView(LoginRequiredMixin, generic.ListView):
@@ -146,14 +147,9 @@ class FlashcardReviewView(LoginRequiredMixin, CreatedByQuerysetMixin, generic.De
             selected_answer = form.cleaned_data["selected_answer"]
             is_correct = self.object.answers.filter(text=selected_answer, is_correct=True).exists()
             feedback_message = "Correct answer!" if is_correct else "Incorrect answer."
+            quality = Review.Quality.PERFECT if is_correct else Review.Quality.HARD  # TODO: recive quality from form
 
-            Review.objects.create(
-                flashcard=self.object,
-                user=self.request.user,
-                quality=(Review.Quality.PERFECT if is_correct else Review.Quality.HARD),
-            )
-
-            FlashcardService.review_flashcard(flashcard=self.object)
+            FlashcardService.review_flashcard(flashcard=self.object, quality=quality)
 
         correct_answer_texts = list(self.object.answers.filter(is_correct=True).values_list("text", flat=True))
 
